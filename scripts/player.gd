@@ -33,7 +33,6 @@ var yarn_in_inventory: float = 500.0  # How much yarn we can still lay down
 var yarn_trail: YarnTrail
 
 # Textures
-var cone_texture: GradientTexture2D
 var radial_texture: GradientTexture2D
 
 # Nearby items for pickup
@@ -60,23 +59,12 @@ func _ready() -> void:
 
 
 func _create_light_textures() -> void:
-	# Cone texture for flashlight
-	cone_texture = GradientTexture2D.new()
-	cone_texture.width = 512
-	cone_texture.height = 512
-	cone_texture.fill = GradientTexture2D.FILL_RADIAL
-	cone_texture.fill_from = Vector2(0.0, 0.5)
-	cone_texture.fill_to = Vector2(1.0, 0.5)
-	
-	var cone_gradient = Gradient.new()
-	cone_gradient.set_offset(0, 0.0)
-	cone_gradient.set_color(0, Color(1, 1, 1, 1))
-	cone_gradient.add_point(0.4, Color(1, 1, 1, 0.6))
-	cone_gradient.set_offset(1, 1.0)
-	cone_gradient.set_color(1, Color(1, 1, 1, 0))
-	cone_texture.gradient = cone_gradient
-	flashlight.texture = cone_texture
-	
+	# Create a proper cone/wedge texture for the flashlight
+	var cone_image = _create_cone_image(512, 512, 45.0)  # 45 degree half-angle cone
+	var cone_image_texture = ImageTexture.create_from_image(cone_image)
+	flashlight.texture = cone_image_texture
+	flashlight.texture_scale = 1.5
+
 	# Radial texture for ambient light
 	radial_texture = GradientTexture2D.new()
 	radial_texture.width = 256
@@ -84,7 +72,7 @@ func _create_light_textures() -> void:
 	radial_texture.fill = GradientTexture2D.FILL_RADIAL
 	radial_texture.fill_from = Vector2(0.5, 0.5)
 	radial_texture.fill_to = Vector2(0.5, 0.0)
-	
+
 	var radial_gradient = Gradient.new()
 	radial_gradient.set_offset(0, 0.0)
 	radial_gradient.set_color(0, Color(1, 1, 1, 1))
@@ -92,6 +80,41 @@ func _create_light_textures() -> void:
 	radial_gradient.set_color(1, Color(1, 1, 1, 0))
 	radial_texture.gradient = radial_gradient
 	ambient_light.texture = radial_texture
+
+
+func _create_cone_image(width: int, height: int, half_angle_deg: float) -> Image:
+	# Create a cone-shaped light texture
+	# The cone points to the right (angle 0) and will be rotated by the flashlight
+	var image = Image.create(width, height, false, Image.FORMAT_RGBA8)
+
+	var center = Vector2(width / 2.0, height / 2.0)
+	var half_angle_rad = deg_to_rad(half_angle_deg)
+	var max_dist = width / 2.0
+
+	for y in range(height):
+		for x in range(width):
+			var pos = Vector2(x, y) - center
+			var dist = pos.length()
+			var angle = abs(atan2(pos.y, pos.x))
+
+			# Check if within cone angle (pointing right, so angle from 0)
+			if angle <= half_angle_rad and pos.x >= 0:
+				# Inside the cone
+				var dist_factor = 1.0 - (dist / max_dist)
+				dist_factor = clampf(dist_factor, 0.0, 1.0)
+
+				# Soften edges of the cone
+				var angle_factor = 1.0 - (angle / half_angle_rad)
+				angle_factor = pow(angle_factor, 0.5)  # Soft edge falloff
+
+				var alpha = dist_factor * angle_factor
+				alpha = pow(alpha, 0.7)  # Adjust falloff curve
+
+				image.set_pixel(x, y, Color(1, 1, 1, alpha))
+			else:
+				image.set_pixel(x, y, Color(0, 0, 0, 0))
+
+	return image
 
 
 func _physics_process(delta: float) -> void:

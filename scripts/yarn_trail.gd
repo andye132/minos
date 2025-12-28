@@ -4,7 +4,7 @@ class_name YarnTrail
 # Yarn properties
 @export var max_yarn_length: float = 500.0  # Maximum length in yarn units
 @export var point_spacing: float = 15.0  # Distance between yarn points in pixels
-@export var light_spacing: int = 2  # Place light every N points
+@export var light_spacing: int = 1  # Place light every N points (1 = every point)
 @export var pixels_per_unit: float = 1.0  # How many pixels = 1 yarn unit
 
 # Current state
@@ -151,15 +151,20 @@ func _trim_to_max_length() -> void:
 func _add_yarn_light(pos: Vector2) -> void:
 	if not is_continuous:
 		return
-	
+
 	var light = PointLight2D.new()
-	light.color = Color(1.0, 0.7, 0.3, 1.0)
-	light.energy = 0.5
-	light.texture_scale = 1.0
+	light.color = Color(1.0, 0.8, 0.4, 1.0)
+	light.energy = 1.5  # Strong enough to be visible in darkness
+	light.texture_scale = 2.0  # Larger glow radius
 	light.texture = radial_texture
 	light.global_position = pos
 	light.z_index = 10
-	
+
+	# Enable shadows so light doesn't pass through walls
+	light.shadow_enabled = true
+	light.shadow_color = Color(0, 0, 0, 0.8)
+	light.shadow_filter = 1  # PCF5 filter for smoother shadows
+
 	add_child(light)
 	yarn_lights.append(light)
 
@@ -193,11 +198,11 @@ func break_yarn() -> void:
 
 func restore_yarn() -> void:
 	is_continuous = true
-	
+
 	# Turn lights back on
 	for light in yarn_lights:
-		light.energy = 0.5
-	
+		light.energy = 1.5
+
 	_update_visual()
 	yarn_restored.emit()
 

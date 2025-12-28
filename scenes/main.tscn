@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://minimap123" path="res://scenes/minimap.tscn" id="4_minimap"]
 [ext_resource type="PackedScene" uid="uid://dql4rkolmq5ra" path="res://scenes/inventory_ui.tscn" id="5_inventory"]
 [ext_resource type="PackedScene" uid="uid://worlditem123" path="res://scenes/world_item.tscn" id="6_item"]
-[ext_resource type="PackedScene" uid="uid://yarntrail123" path="res://scenes/yarn_trail.tscn" id="7_yarn"]
+[ext_resource type="PackedScene" path="res://scenes/yarn_trail.tscn" id="7_yarn"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_85g3d"]
 texture = ExtResource("2_tipki")
@@ -150,6 +150,8 @@ item_type = 2
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="Minimap" parent="CanvasLayer" instance=ExtResource("4_minimap")]
+offset_left = -170.0
+offset_bottom = 170.0
 
 [node name="InventoryUI" parent="CanvasLayer" instance=ExtResource("5_inventory")]
 
@@ -162,3 +164,6 @@ text = "WASD - Move
 Shift - Dash
 E - Pick up item
 1/2/3 - Select slot"
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.18717614, 0.18717614, 0.18717614, 1)

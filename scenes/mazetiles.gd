@@ -106,3 +106,38 @@ func dfs(start: Vector2i):
 func place_all_walls():
 	print(all_wall_locs)
 	set_cells_terrain_connect(all_wall_locs, terrain_set, terrain_id)
+	_create_light_occluders()
+
+
+func _create_light_occluders() -> void:
+	# Create a single LightOccluder2D with all wall polygons
+	var occluder_node = LightOccluder2D.new()
+	occluder_node.name = "WallOccluders"
+
+	var occluder = OccluderPolygon2D.new()
+	occluder.cull_mode = OccluderPolygon2D.CULL_DISABLED
+
+	# Get tile size (16x16 scaled by 3)
+	var tile_size = 16.0  # Base tile size before scaling
+	var half_tile = tile_size / 2.0
+
+	# Build polygon points for each wall tile
+	# We'll create individual occluders for each wall for proper shadowing
+	for wall_pos in all_wall_locs:
+		var wall_occluder = LightOccluder2D.new()
+		var wall_polygon = OccluderPolygon2D.new()
+		wall_polygon.cull_mode = OccluderPolygon2D.CULL_DISABLED
+
+		# Calculate world position (tile coords * tile_size, centered)
+		var world_pos = Vector2(wall_pos.x * tile_size + half_tile, wall_pos.y * tile_size + half_tile)
+
+		# Create a square polygon for this wall tile
+		wall_polygon.polygon = PackedVector2Array([
+			world_pos + Vector2(-half_tile, -half_tile),
+			world_pos + Vector2(half_tile, -half_tile),
+			world_pos + Vector2(half_tile, half_tile),
+			world_pos + Vector2(-half_tile, half_tile)
+		])
+
+		wall_occluder.occluder = wall_polygon
+		add_child(wall_occluder)
