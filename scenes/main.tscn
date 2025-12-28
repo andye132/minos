@@ -1,0 +1,51 @@
+[gd_scene load_steps=7 format=3 uid="uid://main123"]
+
+[ext_resource type="Script" uid="uid://f5mxyq6unco" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="PackedScene" uid="uid://player123" path="res://scenes/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" uid="uid://minimap123" path="res://scenes/minimap.tscn" id="4_minimap"]
+[ext_resource type="PackedScene" uid="uid://dql4rkolmq5ra" path="res://scenes/inventory_ui.tscn" id="5_inventory"]
+[ext_resource type="PackedScene" uid="uid://worlditem123" path="res://scenes/world_item.tscn" id="6_item"]
+[ext_resource type="PackedScene" uid="uid://yarntrail123" path="res://scenes/yarn_trail.tscn" id="7_yarn"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="YarnTrail" parent="." instance=ExtResource("7_yarn")]
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(400, 300)
+
+[node name="Items" type="Node2D" parent="."]
+
+[node name="YarnPickup1" parent="Items" instance=ExtResource("6_item")]
+position = Vector2(200, 150)
+item_type = 0
+yarn_amount = 1000.0
+
+[node name="YarnPickup2" parent="Items" instance=ExtResource("6_item")]
+position = Vector2(600, 450)
+item_type = 0
+yarn_amount = 500.0
+
+[node name="Sword1" parent="Items" instance=ExtResource("6_item")]
+position = Vector2(650, 150)
+
+[node name="Torch1" parent="Items" instance=ExtResource("6_item")]
+position = Vector2(150, 450)
+item_type = 2
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Minimap" parent="CanvasLayer" instance=ExtResource("4_minimap")]
+
+[node name="InventoryUI" parent="CanvasLayer" instance=ExtResource("5_inventory")]
+
+[node name="Controls" type="Label" parent="CanvasLayer"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 300.0
+offset_bottom = 120.0
+text = "WASD - Move
+Shift - Dash
+E - Pick up item
+1/2/3 - Select slot"

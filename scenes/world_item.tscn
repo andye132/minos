@@ -1,0 +1,37 @@
+[gd_scene load_steps=2 format=3 uid="uid://worlditem123"]
+
+[ext_resource type="Script" path="res://scripts/world_item.gd" id="1_item"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_item"]
+radius = 20.0
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_light"]
+width = 128
+height = 128
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[node name="WorldItem" type="Area2D"]
+collision_layer = 8
+collision_mask = 0
+script = ExtResource("1_item")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_item")
+
+[node name="Sprite" type="Polygon2D" parent="."]
+color = Color(1, 1, 1, 1)
+polygon = PackedVector2Array(-8, 0, -6, -6, 0, -8, 6, -6, 8, 0, 6, 6, 0, 8, -6, 6)
+
+[node name="Light" type="PointLight2D" parent="."]
+energy = 0.3
+texture = SubResource("GradientTexture2D_light")
+texture_scale = 1.5
+
+[node name="Label" type="Label" parent="."]
+offset_left = -30.0
+offset_top = -35.0
+offset_right = 30.0
+offset_bottom = -20.0
+horizontal_alignment = 1
