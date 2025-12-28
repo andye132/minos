@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://player123"]
+[gd_scene load_steps=5 format=3 uid="uid://player123"]
 
-[ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
-[ext_resource type="Script" path="res://scripts/inventory.gd" id="2_inventory"]
+[ext_resource type="Script" uid="uid://bvixxpfba26ot" path="res://scripts/player.gd" id="1_player"]
+[ext_resource type="Script" uid="uid://swx1dn8cm5tt" path="res://scripts/inventory.gd" id="2_inventory"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_player"]
 radius = 16.0
@@ -11,7 +11,6 @@ radius = 40.0
 
 [node name="Player" type="CharacterBody2D"]
 z_index = 5
-collision_layer = 1
 collision_mask = 2
 script = ExtResource("1_player")
 
