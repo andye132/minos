@@ -1,6 +1,12 @@
+<<<<<<< Updated upstream
 [gd_scene load_steps=2 format=3 uid="uid://d4ao4wahxcipt"]
 
 [ext_resource type="Script" path="res://scenes/start_screen.gd" id="1_tx5wa"]
+=======
+[gd_scene load_steps=2 format=3 uid="uid://vqoelcjsa7v0"]
+
+[ext_resource type="Script" uid="uid://c4nl732n2xkm" path="res://scenes/start_screen.gd" id="1_tx5wa"]
+>>>>>>> Stashed changes
 
 [node name="StartScreen" type="Control"]
 layout_mode = 3
