@@ -40,6 +40,20 @@ var nearby_items: Array[WorldItem] = []
 
 signal yarn_amount_changed(amount: float)
 
+#multiplayer sync
+func _enter_tree() -> void:
+	# When this node appears on a client, it checks its own name.
+	# If its name is "914757339", it sets its authority to 914757339.
+	if name.is_valid_int():
+		var id = name.to_int()
+		set_multiplayer_authority(id)
+		print("Peer ", multiplayer.get_unique_id(), " claiming authority for node ", id)
+	if is_multiplayer_authority():
+		$Camera2D.make_current()
+	else:
+		$Camera2D.enabled = false
+	if !is_multiplayer_authority(): 
+		return
 
 func _ready() -> void:
 	_create_light_textures()
@@ -118,6 +132,10 @@ func _create_cone_image(width: int, height: int, half_angle_deg: float) -> Image
 
 
 func _physics_process(delta: float) -> void:
+	
+	if !is_multiplayer_authority(): 
+		return
+		
 	if is_dashing:
 		_process_dash()
 	else:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://player123"]
+[gd_scene load_steps=8 format=3 uid="uid://player123"]
 
 [ext_resource type="Script" uid="uid://bvixxpfba26ot" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Script" uid="uid://swx1dn8cm5tt" path="res://scripts/inventory.gd" id="2_inventory"]
@@ -18,6 +18,11 @@ fill_to = Vector2(0.5, 0)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
 radius = 40.0
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_g2els"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
 
 [node name="Player" type="CharacterBody2D"]
 z_index = 5
@@ -64,3 +69,6 @@ shape = SubResource("CircleShape2D_pickup")
 
 [node name="Inventory" type="Node" parent="."]
 script = ExtResource("2_inventory")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_g2els")
