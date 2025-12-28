@@ -1,17 +1,26 @@
-[gd_scene load_steps=3 format=3 uid="uid://player123"]
+[gd_scene load_steps=7 format=3 uid="uid://player123"]
 
-[ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
-[ext_resource type="Script" path="res://scripts/inventory.gd" id="2_inventory"]
+[ext_resource type="Script" uid="uid://bvixxpfba26ot" path="res://scripts/player.gd" id="1_player"]
+[ext_resource type="Script" uid="uid://swx1dn8cm5tt" path="res://scripts/inventory.gd" id="2_inventory"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_player"]
 radius = 16.0
+
+[sub_resource type="Gradient" id="Gradient_g2els"]
+offsets = PackedFloat32Array(0.2, 0.21333334, 1)
+colors = PackedColorArray(0.9396552, 0.9396552, 0.9396552, 1, 1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_qhqgy"]
+gradient = SubResource("Gradient_g2els")
+fill = 1
+fill_from = Vector2(0.5, 0.4906542)
+fill_to = Vector2(0.5, 0)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
 radius = 40.0
 
 [node name="Player" type="CharacterBody2D"]
 z_index = 5
-collision_layer = 1
 collision_mask = 2
 script = ExtResource("1_player")
 
@@ -24,14 +33,17 @@ polygon = PackedVector2Array(-12, -8, -8, -12, 0, -14, 8, -12, 12, -8, 14, 0, 12
 
 [node name="Flashlight" type="PointLight2D" parent="."]
 color = Color(1, 0.95, 0.85, 1)
-energy = 1.2
+energy = 2.29
 shadow_enabled = true
 shadow_color = Color(0, 0, 0, 0.8)
+shadow_filter = 2
+texture = SubResource("GradientTexture2D_qhqgy")
 texture_scale = 2.5
 
 [node name="AmbientLight" type="PointLight2D" parent="."]
 color = Color(0.6, 0.7, 1, 1)
 energy = 0.25
+texture = SubResource("GradientTexture2D_qhqgy")
 texture_scale = 0.8
 
 [node name="DashTimer" type="Timer" parent="."]
