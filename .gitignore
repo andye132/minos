@@ -1,5 +1,6 @@
 # Godot 4+ specific ignores
 .godot/
+<<<<<<< HEAD
 
 # Godot-specific ignores
 *.translation
@@ -8,12 +9,26 @@ export_presets.cfg
 
 # Imported textures and samples
 *.import
+=======
+.nomedia
+
+# Godot-specific ignores
+.import/
+export.cfg
+export_credentials.cfg
+
+# Imported translations (automatically generated from CSV files)
+*.translation
+>>>>>>> 0b477bdec674ee1daaa207ee158e67e1eec73af4
 
 # Mono-specific ignores
 .mono/
 data_*/
 mono_crash.*.json
+<<<<<<< HEAD
 
 # OS generated
 .DS_Store
 *.log
+=======
+>>>>>>> 0b477bdec674ee1daaa207ee158e67e1eec73af4
