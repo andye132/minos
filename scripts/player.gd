@@ -36,6 +36,7 @@ var sword_swing: SwordSwing
 @onready var dash_cooldown_timer: Timer = $DashCooldownTimer
 @onready var pickup_area: Area2D = $PickupArea
 @onready var inventory: Inventory = $Inventory
+@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 # Yarn trail - set externally from Main scene
 var yarn_trail: YarnTrail
@@ -119,11 +120,37 @@ func _process_movement(delta: float) -> void:
 
 	if input_dir != Vector2.ZERO:
 		velocity = velocity.move_toward(input_dir * move_speed, acceleration * delta)
+		_update_walk_animation(input_dir)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
+		if animated_sprite:
+			animated_sprite.stop()
 
 	if Input.is_action_just_pressed("dash") and can_dash:
 		_start_dash(input_dir if input_dir != Vector2.ZERO else look_direction)
+
+
+func _update_walk_animation(direction: Vector2) -> void:
+	if not animated_sprite:
+		return
+
+	var anim_name: String
+	# Prioritize vertical movement for diagonal input
+	if abs(direction.y) >= abs(direction.x):
+		if direction.y > 0:
+			anim_name = "Walk_Down"
+		else:
+			anim_name = "Walk_Up"
+	else:
+		if direction.x > 0:
+			anim_name = "Walk_Right"
+		else:
+			anim_name = "Walk_Left"
+
+	if animated_sprite.animation != anim_name:
+		animated_sprite.play(anim_name)
+	elif not animated_sprite.is_playing():
+		animated_sprite.play(anim_name)
 
 
 func _handle_input() -> void:
