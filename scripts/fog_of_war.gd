@@ -15,7 +15,7 @@ var yarn_trail: YarnTrail
 
 # Revealed cells for fog of war memory
 var revealed_cells: Dictionary = {}
-var cell_size: float = 35.0
+var cell_size: float = 25.0
 
 
 func _ready() -> void:
@@ -142,8 +142,8 @@ func _draw() -> void:
 	var zoom = camera.zoom
 	var visible_size = viewport_size / zoom
 	var camera_pos = camera.global_position
-	var top_left = camera_pos - visible_size / 2 - Vector2(cell_size * 2, cell_size * 2)
-	var bottom_right = camera_pos + visible_size / 2 + Vector2(cell_size * 2, cell_size * 2)
+	var top_left = camera_pos - visible_size / 2 - Vector2(cell_size * 3, cell_size * 3)
+	var bottom_right = camera_pos + visible_size / 2 + Vector2(cell_size * 3, cell_size * 3)
 
 	var player_pos = player.global_position
 
@@ -219,3 +219,30 @@ func _distance_to_line_segment(point: Vector2, seg_start: Vector2, seg_end: Vect
 	var closest = seg_start + line_dir * (t * line_length)
 
 	return point.distance_to(closest)
+
+
+# ===== PUBLIC API FOR MINIMAP =====
+
+# Check if a world position has ever been revealed
+func is_position_revealed(world_pos: Vector2) -> bool:
+	var cell = Vector2i(world_pos / cell_size)
+	return revealed_cells.has(cell)
+
+
+# Check if a world position is currently visible (player nearby, flashlight, or yarn)
+func is_position_visible(world_pos: Vector2) -> bool:
+	if not player:
+		return false
+
+	var player_pos = player.global_position
+	var mouse_pos = player.get_global_mouse_position()
+	var look_dir = (mouse_pos - player_pos).normalized()
+	if look_dir.length() < 0.1:
+		look_dir = player.look_direction
+
+	return _is_currently_visible(world_pos, player_pos, look_dir)
+
+
+# Get the revealed cells dictionary (for efficient batch checking)
+func get_revealed_cells() -> Dictionary:
+	return revealed_cells

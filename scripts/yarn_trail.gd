@@ -2,8 +2,8 @@ extends Node2D
 class_name YarnTrail
 
 # Yarn properties
-@export var max_yarn_length: float = 5000.0
-@export var point_spacing: float = 15.0
+@export var max_yarn_length: float = 500.0
+@export var point_spacing: float = 30.0
 @export var pixels_per_unit: float = 1.0
 
 # Current state

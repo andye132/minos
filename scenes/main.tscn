@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://main123"]
+[gd_scene load_steps=19 format=3 uid="uid://main123"]
 
 [ext_resource type="Script" uid="uid://f5mxyq6unco" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://player123" path="res://scenes/player.tscn" id="2_player"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://dql4rkolmq5ra" path="res://scenes/inventory_ui.tscn" id="5_inventory"]
 [ext_resource type="PackedScene" uid="uid://worlditem123" path="res://scenes/world_item.tscn" id="6_item"]
 [ext_resource type="PackedScene" uid="uid://yarntrail123" path="res://scenes/yarn_trail.tscn" id="7_yarn"]
+[ext_resource type="Shader" uid="uid://buk7t6bcp8tn2" path="res://scripts/SHADER.gdshader" id="10_choun"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_85g3d"]
 texture = ExtResource("2_tipki")
@@ -310,6 +311,31 @@ navigation_layer_0/layers = 1
 sources/1 = SubResource("TileSetAtlasSource_85g3d")
 sources/3 = SubResource("TileSetAtlasSource_jkv2x")
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ya4ey"]
+resource_local_to_scene = true
+shader = ExtResource("10_choun")
+shader_parameter/overlay = true
+shader_parameter/scanlines_opacity = 0.0130000006175
+shader_parameter/scanlines_width = 0.0070000003325
+shader_parameter/grille_opacity = 0.162000007695
+shader_parameter/resolution = Vector2(1280, 960)
+shader_parameter/pixelate = false
+shader_parameter/roll = false
+shader_parameter/roll_speed = 8.0
+shader_parameter/roll_size = 5.4310002579725
+shader_parameter/roll_variation = 0.69900002994262
+shader_parameter/distort_intensity = 0.0110000005225
+shader_parameter/noise_opacity = 0.0050000002375
+shader_parameter/noise_speed = 3.0
+shader_parameter/static_noise_intensity = 0.0070000003325
+shader_parameter/aberration = -0.44799997378
+shader_parameter/brightness = 1.4
+shader_parameter/discolor = false
+shader_parameter/warp_amount = 0.306000014535
+shader_parameter/clip_warp = false
+shader_parameter/vignette_intensity = 0.4
+shader_parameter/vignette_opacity = 0.014000000665
+
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
 
@@ -321,7 +347,7 @@ script = ExtResource("3_85g3d")
 [node name="YarnTrail" parent="." instance=ExtResource("7_yarn")]
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
-position = Vector2(357, 303)
+position = Vector2(335, 315)
 
 [node name="Items" type="Node2D" parent="."]
 
@@ -336,7 +362,7 @@ item_type = 0
 yarn_amount = 500.0
 
 [node name="Sword1" parent="Items" instance=ExtResource("6_item")]
-position = Vector2(650, 150)
+position = Vector2(390, 317)
 
 [node name="Torch1" parent="Items" instance=ExtResource("6_item")]
 position = Vector2(150, 450)
@@ -345,8 +371,6 @@ item_type = 2
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="Minimap" parent="CanvasLayer" instance=ExtResource("4_minimap")]
-offset_left = -170.0
-offset_bottom = 170.0
 
 [node name="InventoryUI" parent="CanvasLayer" instance=ExtResource("5_inventory")]
 
@@ -354,8 +378,18 @@ offset_bottom = 170.0
 offset_left = 20.0
 offset_top = 20.0
 offset_right = 300.0
-offset_bottom = 120.0
+offset_bottom = 140.0
 text = "WASD - Move
 Shift - Dash
 E - Pick up item
-1/2/3 - Select slot"
+1/2/3 - Select slot
+Left Click + Drag - Swing sword"
+
+[node name="SHNADR" type="CanvasLayer" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="SHNADR"]
+visible = false
+material = SubResource("ShaderMaterial_ya4ey")
+use_parent_material = true
+offset_right = 1286.0
+offset_bottom = 722.0

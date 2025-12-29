@@ -4,15 +4,17 @@
 [ext_resource type="Script" uid="uid://d4fjx3mke2hu2" path="res://scripts/minimap_yarn_drawer.gd" id="2_yarn"]
 
 [node name="Minimap" type="SubViewportContainer"]
+custom_minimum_size = Vector2(280, 140)
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -220.0
+offset_left = -300.0
 offset_top = 20.0
 offset_right = -20.0
-offset_bottom = 220.0
+offset_bottom = 160.0
 grow_horizontal = 0
 script = ExtResource("1_minimap")
+minimap_width = 280.0
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 2
@@ -25,15 +27,16 @@ mouse_filter = 2
 [node name="SubViewport" type="SubViewport" parent="."]
 transparent_bg = true
 handle_input_locally = false
-size = Vector2i(200, 200)
+size = Vector2i(280, 140)
 render_target_update_mode = 4
 
 [node name="MinimapCamera" type="Camera2D" parent="SubViewport"]
-position = Vector2(400, 300)
-zoom = Vector2(0.1, 0.1)
+position = Vector2(560, 280)
+zoom = Vector2(0.25, 0.25)
 
 [node name="YarnDrawer" type="Node2D" parent="SubViewport"]
 z_index = 5
 script = ExtResource("2_yarn")
 
 [node name="PlayerMarkers" type="Node2D" parent="SubViewport"]
+z_index = 10

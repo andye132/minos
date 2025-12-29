@@ -7,11 +7,15 @@ class_name Player
 @export var friction: float = 1200.0
 
 # Dash
-@export var dash_speed: float = 150.0
+@export var dash_speed: float = 300.0
 @export var dash_duration: float = 0.2
 @export var dash_cooldown: float = 0.8
 
-# State	
+# Health
+@export var max_hp: int = 100
+var current_hp: int = 100
+
+# State
 var is_dashing: bool = false
 var can_dash: bool = true
 var dash_direction: Vector2 = Vector2.ZERO
@@ -19,8 +23,11 @@ var look_direction: Vector2 = Vector2.RIGHT
 var current_flashlight_angle: float = 0.0
 
 # Yarn
-@export var starting_yarn: float = 5000.0
-var yarn_in_inventory: float = 5000.0
+@export var starting_yarn: float = 500.0
+var yarn_in_inventory: float = 500.0
+
+# Combat
+var sword_swing: SwordSwing
 
 # References
 @onready var flashlight: PointLight2D = $Flashlight
@@ -37,6 +44,8 @@ var yarn_trail: YarnTrail
 var nearby_items: Array[WorldItem] = []
 
 signal yarn_amount_changed(amount: float)
+signal hp_changed(current: int, maximum: int)
+signal player_died()
 
 
 func _enter_tree() -> void:
@@ -62,6 +71,15 @@ func _ready() -> void:
 	inventory.select_slot(0)
 
 	yarn_in_inventory = starting_yarn
+
+	# Initialize HP
+	current_hp = max_hp
+
+	# Setup sword swing component
+	sword_swing = SwordSwing.new()
+	sword_swing.name = "SwordSwing"
+	add_child(sword_swing)
+	sword_swing.swing_hit.connect(_on_sword_hit)
 
 	# Connect signals
 	dash_timer.timeout.connect(_on_dash_finished)
@@ -118,6 +136,9 @@ func _handle_input() -> void:
 
 	if Input.is_action_just_pressed("interact"):
 		_try_pickup()
+
+	# Sword swing with mouse
+	_handle_combat_input()
 
 
 func _try_pickup() -> void:
@@ -212,3 +233,70 @@ func get_yarn_trail() -> YarnTrail:
 
 func set_yarn_trail(trail: YarnTrail) -> void:
 	yarn_trail = trail
+
+
+# ===== COMBAT =====
+
+func _handle_combat_input() -> void:
+	var selected_item = inventory.get_selected_item()
+	if selected_item == null or selected_item.item_type != Item.ItemType.SWORD:
+		return
+
+	# Update sword stats based on equipped weapon
+	sword_swing.set_weapon_stats(selected_item.damage, selected_item.attack_range)
+
+	# Mouse button pressed - start tracking
+	if Input.is_action_just_pressed("attack"):
+		var mouse_pos = get_global_mouse_position()
+		sword_swing.start_tracking(mouse_pos)
+
+	# Mouse button held - update tracking
+	if Input.is_action_pressed("attack"):
+		var mouse_pos = get_global_mouse_position()
+		sword_swing.update_tracking(mouse_pos)
+
+	# Mouse button released - finish swing
+	if Input.is_action_just_released("attack"):
+		var mouse_pos = get_global_mouse_position()
+		sword_swing.finish_tracking(mouse_pos)
+
+
+func _on_sword_hit(target: Node2D, damage_amount: int) -> void:
+	# Called when sword hits something
+	if target.has_method("take_damage"):
+		target.take_damage(damage_amount)
+	print("Hit ", target.name, " for ", damage_amount, " damage!")
+
+
+func take_damage(amount: int) -> void:
+	current_hp -= amount
+	current_hp = max(current_hp, 0)
+	hp_changed.emit(current_hp, max_hp)
+
+	# Visual feedback
+	modulate = Color(1.5, 0.5, 0.5, 1.0)
+	await get_tree().create_timer(0.1).timeout
+	modulate = Color(1.0, 1.0, 1.0, 1.0)
+
+	if current_hp <= 0:
+		_die()
+
+
+func heal(amount: int) -> void:
+	current_hp += amount
+	current_hp = min(current_hp, max_hp)
+	hp_changed.emit(current_hp, max_hp)
+
+
+func _die() -> void:
+	player_died.emit()
+	# For now, just print - you can add death logic later
+	print("Player died!")
+
+
+func get_hp() -> int:
+	return current_hp
+
+
+func get_max_hp() -> int:
+	return max_hp
