@@ -52,15 +52,16 @@ func _enter_tree() -> void:
 		var id = name.to_int()
 		set_multiplayer_authority(id)
 		print("Peer ", multiplayer.get_unique_id(), " claiming authority for node ", id)
-	if is_multiplayer_authority():
-		$Camera2D.make_current()
-	else:
-		$Camera2D.enabled = false
 	if !is_multiplayer_authority(): 
 		return
 
 func _ready() -> void:
 	_create_light_textures()
+	
+	if is_multiplayer_authority():
+		$Camera2D.make_current()
+	else:
+		$Camera2D.enabled = false
 	
 	# Setup inventory with starting yarn
 	var yarn_item = Item.create_yarn(starting_yarn)
