@@ -16,8 +16,8 @@ func _ready() -> void:
 	player.set_yarn_trail(yarn_trail)
 
 	# Calculate maze bounds from the maze generator
-	# Maze uses 16x16 tiles scaled by 5x (check main.tscn Mazetiles scale)
-	var tile_size = 16.0 * 5.0  # 80 pixels per tile
+	# Maze uses 160x160 tiles scaled by 0.8x (check main.tscn Mazetiles scale)
+	var tile_size = 160.0 * 0.8  # 128 pixels per tile
 	var maze_width = maze.x_dim * tile_size
 	var maze_height = maze.y_dim * tile_size
 	var maze_bounds = Vector2(maze_width, maze_height)

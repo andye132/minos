@@ -5,7 +5,9 @@ var minimap: Minimap
 var maze_ref: MazeGen
 var yarn_trail_ref: YarnTrail
 var fog_of_war_ref: FogOfWar
-var world_scale: float = 5.0  # Maze tile scale in world
+var world_scale: float = 0.8  # Maze tile scale in world
+var base_tile_size: float = 160.0  # Base tile size before scaling
+var minimap_tile_size: float = 16.0  # Tile size for minimap drawing
 
 # Colors
 var unexplored_color: Color = Color(0.0, 0.0, 0.0, 1.0)  # Pitch black
@@ -17,8 +19,8 @@ var yarn_color: Color = Color(1.0, 0.7, 0.2, 1.0)
 var yarn_width: float = 3.0
 
 # Visibility radius for "currently lit" on minimap (in world units)
-var player_visible_radius: float = 60.0
-var yarn_visible_radius: float = 40.0
+var player_visible_radius: float = 200.0  # Adjusted for 128px tile size
+var yarn_visible_radius: float = 150.0  # Adjusted for 128px tile size
 
 
 func _ready() -> void:
@@ -28,8 +30,6 @@ func _ready() -> void:
 func _draw() -> void:
 	if not minimap:
 		return
-
-	var tile_size = 16.0
 
 	# Get references from minimap if not set directly
 	if not maze_ref and minimap.maze_ref:
@@ -41,6 +41,9 @@ func _draw() -> void:
 
 	if not maze_ref:
 		return
+
+	# Calculate conversion factors
+	var world_tile_size = base_tile_size * world_scale  # 128 pixels per tile in world
 
 	# Get player position for visibility check
 	var player_world_pos: Vector2 = Vector2.ZERO
@@ -56,10 +59,11 @@ func _draw() -> void:
 	for y in range(maze_ref.y_dim):
 		for x in range(maze_ref.x_dim):
 			var tile_pos = Vector2i(x, y)
-			var tile_rect = Rect2(x * tile_size, y * tile_size, tile_size, tile_size)
+			# Draw tile at minimap coordinates
+			var tile_rect = Rect2(x * minimap_tile_size, y * minimap_tile_size, minimap_tile_size, minimap_tile_size)
 
-			# Convert tile center to world position
-			var tile_center_world = Vector2(x * tile_size + tile_size / 2, y * tile_size + tile_size / 2) * world_scale
+			# Convert tile center to world position for fog checks
+			var tile_center_world = Vector2((x + 0.5) * world_tile_size, (y + 0.5) * world_tile_size)
 
 			# Determine visibility state
 			var is_wall = maze_ref.is_wall(tile_pos)
@@ -87,10 +91,11 @@ func _draw() -> void:
 	if yarn_trail_ref:
 		var points = yarn_trail_ref.get_points()
 		if points.size() >= 2:
-			# Convert world positions to tile positions
+			# Convert world positions to minimap positions
 			var scaled_points: PackedVector2Array = PackedVector2Array()
 			for point in points:
-				scaled_points.append(point / world_scale)
+				# world_pos / world_tile_size * minimap_tile_size
+				scaled_points.append(point / world_tile_size * minimap_tile_size)
 
 			# Draw glow around yarn
 			for i in range(0, scaled_points.size(), 3):

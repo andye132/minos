@@ -11,12 +11,14 @@ class_name Minimap
 @onready var player_markers: Node2D = $SubViewport/PlayerMarkers
 
 var players: Array[Player] = []
-var maze_bounds: Vector2 = Vector2(5600, 2800)  # Default: 70*80, 35*80
+var maze_bounds: Vector2 = Vector2(4480, 4480)  # Default: 35 * 160 * 0.8
 var maze_ref: MazeGen
 var yarn_trail_ref: YarnTrail
 var fog_of_war_ref: FogOfWar
-var minimap_size: Vector2 = Vector2(280, 140)
-var world_scale: float = 5.0  # Maze tile scale in world
+var minimap_size: Vector2 = Vector2(200, 200)
+var world_scale: float = 0.8  # Maze tile scale in world
+var base_tile_size: float = 160.0  # Base tile size before scaling
+var minimap_tile_size: float = 16.0  # Tile size for minimap drawing
 
 
 func _ready() -> void:
@@ -51,6 +53,8 @@ func set_maze_reference(maze: MazeGen) -> void:
 	if yarn_drawer:
 		yarn_drawer.maze_ref = maze
 		yarn_drawer.world_scale = world_scale
+		yarn_drawer.base_tile_size = base_tile_size
+		yarn_drawer.minimap_tile_size = minimap_tile_size
 
 
 func set_yarn_trail(trail: YarnTrail) -> void:
@@ -58,6 +62,8 @@ func set_yarn_trail(trail: YarnTrail) -> void:
 	if yarn_drawer:
 		yarn_drawer.yarn_trail_ref = trail
 		yarn_drawer.world_scale = world_scale
+		yarn_drawer.base_tile_size = base_tile_size
+		yarn_drawer.minimap_tile_size = minimap_tile_size
 
 
 func set_fog_of_war(fog: FogOfWar) -> void:
@@ -65,6 +71,8 @@ func set_fog_of_war(fog: FogOfWar) -> void:
 	if yarn_drawer:
 		yarn_drawer.fog_of_war_ref = fog
 		yarn_drawer.world_scale = world_scale
+		yarn_drawer.base_tile_size = base_tile_size
+		yarn_drawer.minimap_tile_size = minimap_tile_size
 
 
 func _update_minimap_size() -> void:
@@ -75,18 +83,21 @@ func _update_minimap_size() -> void:
 		viewport.size = Vector2i(minimap_size)
 
 	if minimap_camera:
-		# Position camera at center of maze (in tile coordinates, not world)
-		# The yarn drawer draws in tile space (16x16), so camera should match
-		var tile_size = 16.0
-		var maze_tile_width = maze_bounds.x / world_scale
-		var maze_tile_height = maze_bounds.y / world_scale
+		# The yarn drawer draws tiles at minimap_tile_size (16px each)
+		# Calculate how many tiles we have and the drawable area
+		var world_tile_size = base_tile_size * world_scale  # 128 pixels per tile in world
+		var num_tiles_x = int(maze_bounds.x / world_tile_size)  # 35 tiles
+		var num_tiles_y = int(maze_bounds.y / world_tile_size)  # 35 tiles
 
-		# Calculate zoom to fit entire maze in minimap
-		var zoom_x = minimap_size.x / maze_tile_width
-		var zoom_y = minimap_size.y / maze_tile_height
+		var drawable_width = num_tiles_x * minimap_tile_size  # 35 * 16 = 560
+		var drawable_height = num_tiles_y * minimap_tile_size  # 35 * 16 = 560
+
+		# Calculate zoom to fit entire drawable area in minimap
+		var zoom_x = minimap_size.x / drawable_width
+		var zoom_y = minimap_size.y / drawable_height
 		var zoom_val = min(zoom_x, zoom_y)
 		minimap_camera.zoom = Vector2(zoom_val, zoom_val)
-		minimap_camera.position = Vector2(maze_tile_width / 2, maze_tile_height / 2)
+		minimap_camera.position = Vector2(drawable_width / 2, drawable_height / 2)
 
 
 func _update_player_markers() -> void:
@@ -104,8 +115,10 @@ func _update_player_markers() -> void:
 
 func _create_player_marker(player: Player) -> Node2D:
 	var marker = Node2D.new()
-	# Convert world position to tile position
-	marker.position = player.global_position / world_scale
+	# Convert world position to minimap position
+	# World uses 160*0.8=128px tiles, minimap draws at 16px per tile
+	var world_tile_size = base_tile_size * world_scale  # 128
+	marker.position = player.global_position / world_tile_size * minimap_tile_size
 
 	var circle = Polygon2D.new()
 	circle.color = Color(0.3, 0.8, 1.0, 1.0)

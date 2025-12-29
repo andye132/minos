@@ -169,8 +169,8 @@ func _create_light_occluders() -> void:
 	var occluder = OccluderPolygon2D.new()
 	occluder.cull_mode = OccluderPolygon2D.CULL_DISABLED
 
-	# Get tile size (16x16 scaled by 3)
-	var tile_size = 16.0  # Base tile size before scaling
+	# Get tile size (160x160 as defined in TileSet)
+	var tile_size = 160.0  # Base tile size before scaling
 	var half_tile = tile_size / 2.0
 
 	# Build polygon points for each wall tile
