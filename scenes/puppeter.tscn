@@ -1,0 +1,33 @@
+[gd_scene load_steps=3 format=3 uid="uid://ddg585lp8ljhu"]
+
+[ext_resource type="Script" uid="uid://bvv46ht6i2jij" path="res://scenes/puppeter.gd" id="1_8coox"]
+[ext_resource type="Script" uid="uid://b2jj0defo5fb" path="res://scenes/spawn_enemy.gd" id="2_yxao6"]
+
+[node name="puppeter" type="Node2D"]
+script = ExtResource("1_8coox")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(3152, 1773)
+scale = Vector2(4.7599993, 4.7599993)
+zoom = Vector2(0.2, 0.2)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -60.22998
+offset_right = 49.0
+offset_bottom = -20.329956
+grow_horizontal = 2
+grow_vertical = 0
+scale = Vector2(1.5, 1.5)
+
+[node name="SpawnEnemy" type="Button" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "spawn pluh"
+script = ExtResource("2_yxao6")

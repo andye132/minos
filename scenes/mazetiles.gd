@@ -4,7 +4,8 @@ class_name MazeGen
 var starting_pos = Vector2i()
 const main_layer = 0
 const terrain_set = 0
-const terrain_id = 0
+const wall_id = 0
+const floor_id = 1
 #const normal_wall_atlas_coords = Vector2i(10, 1)
 #const walkable_atlas_coords = Vector2i(9, 4)
 #const SOURCE_ID = 0
@@ -13,7 +14,7 @@ const terrain_id = 0
 #var current_letter_num = 65
 
 @export var y_dim = 35
-@export var x_dim = 70
+@export var x_dim = 35
 @export var starting_coords = Vector2i(0, 0)
 @export var usbroom_y = 10
 @export var usbroom_x = 10
@@ -26,8 +27,9 @@ var adj4 = [
 	Vector2i(0, -1),
 ]
 var all_wall_locs: Array[Vector2i] = []
+var all_floor_locs: Array[Vector2i] = []
 var usb_room_walls: Array[int] = []
-
+	
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	place_border(-1, -1, x_dim, y_dim)
@@ -36,8 +38,12 @@ func _ready() -> void:
 	print(usb_room_walls[0])
 	place_border(usb_room_walls[0],usb_room_walls[1],usb_room_walls[2],usb_room_walls[3])
 	dfs(starting_coords)
-	open_usb_doors()
+	open_box_doors(-1,-1,x_dim,y_dim)
+	open_box_doors(0,0,x_dim-1,y_dim-1)
+	open_box_doors(usb_room_walls[0],usb_room_walls[1],usb_room_walls[2],usb_room_walls[3])
+	place_floor_border(-2,-2, x_dim+1,y_dim+1)
 	place_all_walls()
+	place_all_floors()
 	
 
 func place_border(x_min, y_min, x_max, y_max):
@@ -47,6 +53,14 @@ func place_border(x_min, y_min, x_max, y_max):
 	for y in range(y_min+1, y_max):
 		place_wall(Vector2i(x_min, y))
 		place_wall(Vector2i(x_max, y))
+		
+func place_floor_border(x_min, y_min, x_max, y_max):
+	for x in range(x_min, x_max + 1):
+		place_floor(Vector2i(x, y_min))
+		place_floor(Vector2i(x, y_max))
+	for y in range(y_min+1, y_max):
+		place_floor(Vector2i(x_min, y))
+		place_floor(Vector2i(x_max, y))
 		
 
 func generate_usb_room_coords():
@@ -60,26 +74,28 @@ func generate_usb_room_coords():
 	usb_room_walls.append(int(usbcenter_y + usbroom_y/2) | 1)
 	return
 	
-func open_usb_doors():
+func open_box_doors(x_min, y_min, x_max, y_max):
 	# 1. Calculate the midpoints
 	# We use integer division (abs / 2) to find the center
-	var center_x = (usb_room_walls[0] + usb_room_walls[2]) / 2
-	var center_y = (usb_room_walls[1] + usb_room_walls[3]) / 2
+	var center_x = (x_min + x_max) / 2
+	var center_y = (y_min + y_max) / 2
 	
-	delete_cell_at(Vector2i(center_x, usb_room_walls[1]))
-	delete_cell_at(Vector2i(center_x, usb_room_walls[3]))
-	delete_cell_at(Vector2i(usb_room_walls[0], center_y))
-	delete_cell_at(Vector2i(usb_room_walls[2], center_y))
+	delete_cell_at(Vector2i(center_x, y_min))
+	delete_cell_at(Vector2i(center_x, y_max))
+	delete_cell_at(Vector2i(x_min, center_y))
+	delete_cell_at(Vector2i(x_max, center_y))
 	return
 
 func delete_cell_at(pos: Vector2i):
 	all_wall_locs.erase(pos)
+	all_floor_locs.append(pos)
 	
 	
 func place_wall(pos: Vector2i):
 	all_wall_locs.append(pos)
 	
-
+func place_floor(pos: Vector2i):
+	all_floor_locs.append(pos)
 
 func will_be_converted_to_wall(spot: Vector2i):
 	return (spot.x % 2 == 1 and spot.y % 2 == 1)
@@ -133,11 +149,16 @@ func dfs(start: Vector2i):
 		# 3. Dead-end logic: If no neighbors were added, turn current into wall
 		if not found_new_path:
 			place_wall(current)
+		else:
+			all_floor_locs.append(current)
 
 func place_all_walls():
-	print(all_wall_locs)
-	set_cells_terrain_connect(all_wall_locs, terrain_set, terrain_id)
+	set_cells_terrain_connect(all_wall_locs, terrain_set, wall_id)
 	_create_light_occluders()
+	
+func place_all_floors():
+	print(all_floor_locs)
+	set_cells_terrain_connect(all_floor_locs, terrain_set, floor_id)
 
 
 func _create_light_occluders() -> void:
