@@ -6,9 +6,8 @@
 [node name="puppetertesting" type="Node2D"]
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
-position = Vector2(2376, 1525)
 
 [node name="Mazetiles" parent="NavigationRegion2D" instance=ExtResource("2_r17wr")]
-position = Vector2(-2376, -1525)
+scale = Vector2(0.8, 0.8)
 
 [node name="puppeter" parent="." instance=ExtResource("1_t80wd")]

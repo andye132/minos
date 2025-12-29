@@ -5,6 +5,7 @@ extends CharacterBody2D
 @export var pause_time := 1.0
 @export var stuck_time := 5.0
 @export var stuck_threshold := 2.0
+@export var vision_radius := 200.0  # how far this minion can see (for fog of war)
 
 @export var navigation_region_path: NodePath
 
@@ -85,3 +86,8 @@ func _pick_new_roam_target():
 
 	agent.target_position = candidate
 	# Optional debug: print("Roaming target:", candidate)
+
+
+# Vision API for fog of war
+func get_vision_radius() -> float:
+	return vision_radius
