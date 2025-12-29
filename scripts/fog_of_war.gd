@@ -11,12 +11,12 @@ var fog_image: Image
 
 # Fog settings
 @export var fog_color: Color = Color(0.0, 0.0, 0.02, 0.97)
-@export var revealed_color: Color = Color(0.0, 0.0, 0.02, 0.6)  # Previously seen areas
-@export var clear_color: Color = Color(0, 0, 0, 0)  # Currently visible
+@export var revealed_color: Color = Color(0.0, 0.0, 0.0, 1.0)  # Previously seen areas
+@export var clear_color: Color = Color(0.0, 0.0, 0.0, 0.49)  # Currently visible
 
-@export var flashlight_range: float = 250.0
-@export var flashlight_angle: float = 45.0
-@export var yarn_glow_radius: float = 100.0
+@export var flashlight_range: float = 100.0
+@export var flashlight_angle: float = 30.0
+@export var yarn_glow_radius: float = 50.0
 @export var resolution_scale: float = 0.15  # Lower = better performance
 
 # Fog map dimensions (will be set based on maze)
@@ -77,16 +77,25 @@ func _update_fog() -> void:
 	var scale_x = float(fog_width) / world_width
 	var scale_y = float(fog_height) / world_height
 
-	# Clear areas around flashlight
+	# Clear areas around flashlight (follows mouse cursor)
 	if player:
 		var player_pos = player.global_position
-		var look_dir = player.look_direction
+		var mouse_pos = player.get_global_mouse_position()
+		var look_dir = (mouse_pos - player_pos).normalized()
+		if look_dir.length() < 0.1:
+			look_dir = Vector2.RIGHT
 		_clear_flashlight_cone(player_pos, look_dir, scale_x, scale_y)
 
-	# Clear areas around yarn
+	# Clear areas along the entire yarn LINE (not just at points)
 	if yarn_trail:
-		for yarn_pos in yarn_trail.get_points():
-			_clear_circle(yarn_pos, yarn_glow_radius, scale_x, scale_y)
+		var points = yarn_trail.get_points()
+		if points.size() > 0:
+			# Clear along each line segment
+			for i in range(points.size() - 1):
+				_clear_line_segment(points[i], points[i + 1], yarn_glow_radius, scale_x, scale_y)
+			# Also clear at the last point
+			if points.size() > 0:
+				_clear_circle(points[points.size() - 1], yarn_glow_radius, scale_x, scale_y)
 
 	# Apply revealed areas (show as slightly less dark)
 	_apply_revealed_areas()
@@ -133,6 +142,56 @@ func _clear_flashlight_cone(origin: Vector2, direction: Vector2, scale_x: float,
 					alpha = (dist - (fog_range - edge_dist)) / edge_dist * fog_color.a
 
 				fog_image.set_pixel(px, py, Color(fog_color.r, fog_color.g, fog_color.b, alpha))
+
+				# Mark as revealed
+				revealed_map.set_pixel(px, py, Color(1, 1, 1, 1))
+
+
+func _clear_line_segment(start: Vector2, end: Vector2, radius: float, scale_x: float, scale_y: float) -> void:
+	# Clear fog along the entire line segment with smooth edges
+	var fog_start = Vector2(start.x * scale_x, start.y * scale_y)
+	var fog_end = Vector2(end.x * scale_x, end.y * scale_y)
+	var fog_radius = radius * max(scale_x, scale_y)
+
+	var line_vec = fog_end - fog_start
+	var line_length = line_vec.length()
+
+	if line_length < 0.1:
+		return
+
+	var line_dir = line_vec / line_length
+
+	# Calculate bounding box for the line segment
+	var min_x = int(min(fog_start.x, fog_end.x) - fog_radius) - 1
+	var max_x = int(max(fog_start.x, fog_end.x) + fog_radius) + 1
+	var min_y = int(min(fog_start.y, fog_end.y) - fog_radius) - 1
+	var max_y = int(max(fog_start.y, fog_end.y) + fog_radius) + 1
+
+	min_x = clampi(min_x, 0, fog_width - 1)
+	max_x = clampi(max_x, 0, fog_width - 1)
+	min_y = clampi(min_y, 0, fog_height - 1)
+	max_y = clampi(max_y, 0, fog_height - 1)
+
+	for py in range(min_y, max_y + 1):
+		for px in range(min_x, max_x + 1):
+			var pixel_pos = Vector2(px, py)
+
+			# Calculate distance from pixel to line segment
+			var to_pixel = pixel_pos - fog_start
+			var t = clampf(to_pixel.dot(line_dir) / line_length, 0.0, 1.0)
+			var closest_point = fog_start + line_dir * (t * line_length)
+			var dist = pixel_pos.distance_to(closest_point)
+
+			if dist <= fog_radius:
+				# Smooth falloff at edges
+				var alpha = 0.0
+				var edge_dist = fog_radius * 0.3
+				if dist > fog_radius - edge_dist:
+					alpha = (dist - (fog_radius - edge_dist)) / edge_dist * fog_color.a
+
+				var current = fog_image.get_pixel(px, py)
+				if alpha < current.a:
+					fog_image.set_pixel(px, py, Color(fog_color.r, fog_color.g, fog_color.b, alpha))
 
 				# Mark as revealed
 				revealed_map.set_pixel(px, py, Color(1, 1, 1, 1))

@@ -3,11 +3,11 @@ class_name Player
 
 # Movement
 @export var move_speed: float = 200.0
-@export var acceleration: float = 1500.0
+@export var acceleration: float = 1000.0
 @export var friction: float = 1200.0
 
 # Dash
-@export var dash_speed: float = 600.0
+@export var dash_speed: float = 300.0
 @export var dash_duration: float = 0.15
 @export var dash_cooldown: float = 0.8
 
@@ -16,10 +16,11 @@ var is_dashing: bool = false
 var can_dash: bool = true
 var dash_direction: Vector2 = Vector2.ZERO
 var look_direction: Vector2 = Vector2.RIGHT
+var current_flashlight_angle: float = 0.0  # For smooth rotation
 
 # Yarn
-@export var starting_yarn: float = 500.0  # Starting yarn units
-var yarn_in_inventory: float = 500.0  # How much yarn we can still lay down
+@export var starting_yarn: float = 5000.0  # Starting yarn units
+var yarn_in_inventory: float = 5000.0  # How much yarn we can still lay down
 
 # References
 @onready var flashlight: PointLight2D = $Flashlight
@@ -74,37 +75,19 @@ func _ready() -> void:
 
 
 func _create_light_textures() -> void:
-	# Create a proper cone/wedge texture for the flashlight
-	var cone_image = _create_cone_image(512, 512, 45.0)  # 45 degree half-angle cone
-	var cone_image_texture = ImageTexture.create_from_image(cone_image)
-	flashlight.texture = cone_image_texture
-	flashlight.texture_scale = 1.5
-
-	# Radial texture for ambient light
-	radial_texture = GradientTexture2D.new()
-	radial_texture.width = 256
-	radial_texture.height = 256
-	radial_texture.fill = GradientTexture2D.FILL_RADIAL
-	radial_texture.fill_from = Vector2(0.5, 0.5)
-	radial_texture.fill_to = Vector2(0.5, 0.0)
-
-	var radial_gradient = Gradient.new()
-	radial_gradient.set_offset(0, 0.0)
-	radial_gradient.set_color(0, Color(1, 1, 1, 1))
-	radial_gradient.set_offset(1, 1.0)
-	radial_gradient.set_color(1, Color(1, 1, 1, 0))
-	radial_texture.gradient = radial_gradient
-	ambient_light.texture = radial_texture
+	# Disable lights - fog of war handles visibility
+	flashlight.enabled = false
+	ambient_light.enabled = false
 
 
 func _create_cone_image(width: int, height: int, half_angle_deg: float) -> Image:
-	# Create a cone-shaped light texture
-	# The cone points to the right (angle 0) and will be rotated by the flashlight
+	# Create a smooth cone with bright center
 	var image = Image.create(width, height, false, Image.FORMAT_RGBA8)
 
 	var center = Vector2(width / 2.0, height / 2.0)
 	var half_angle_rad = deg_to_rad(half_angle_deg)
 	var max_dist = width / 2.0
+	var center_radius = max_dist * 0.12
 
 	for y in range(height):
 		for x in range(width):
@@ -112,24 +95,37 @@ func _create_cone_image(width: int, height: int, half_angle_deg: float) -> Image
 			var dist = pos.length()
 			var angle = abs(atan2(pos.y, pos.x))
 
-			# Check if within cone angle (pointing right, so angle from 0)
-			if angle <= half_angle_rad and pos.x >= 0:
-				# Inside the cone
-				var dist_factor = 1.0 - (dist / max_dist)
+			var alpha = 0.0
+
+			# Bright center circle
+			if dist < center_radius:
+				var center_falloff = dist / center_radius
+				alpha = 1.0 - (center_falloff * 0.1)  # Slight falloff from very center
+			# Cone area with smooth edges
+			elif angle <= half_angle_rad and pos.x >= 0:
+				# Distance falloff - smooth curve
+				var dist_factor = 1.0 - ((dist - center_radius) / (max_dist - center_radius))
 				dist_factor = clampf(dist_factor, 0.0, 1.0)
+				dist_factor = smoothstep(0.0, 1.0, dist_factor)
 
-				# Soften edges of the cone
-				var angle_factor = 1.0 - (angle / half_angle_rad)
-				angle_factor = pow(angle_factor, 0.5)  # Soft edge falloff
+				# Angle falloff - very smooth at edges
+				var angle_normalized = angle / half_angle_rad
+				var angle_factor = 1.0 - smoothstep(0.5, 1.0, angle_normalized)
 
-				var alpha = dist_factor * angle_factor
-				alpha = pow(alpha, 0.7)  # Adjust falloff curve
+				alpha = dist_factor * angle_factor
+			# Transition zone between center and cone
+			elif dist < center_radius * 2.0 and pos.x >= -center_radius:
+				var transition = 1.0 - ((dist - center_radius) / center_radius)
+				alpha = clampf(transition * 0.5, 0.0, 0.5)
 
-				image.set_pixel(x, y, Color(1, 1, 1, alpha))
-			else:
-				image.set_pixel(x, y, Color(0, 0, 0, 0))
+			image.set_pixel(x, y, Color(1, 1, 1, alpha))
 
 	return image
+
+
+func smoothstep(edge0: float, edge1: float, x: float) -> float:
+	var t = clampf((x - edge0) / (edge1 - edge0), 0.0, 1.0)
+	return t * t * (3.0 - 2.0 * t)
 
 
 func _physics_process(delta: float) -> void:
@@ -244,7 +240,14 @@ func _on_dash_cooldown_finished() -> void:
 
 
 func _update_flashlight_rotation() -> void:
-	flashlight.rotation = look_direction.angle()
+	# Follow mouse cursor
+	var mouse_pos = get_global_mouse_position()
+	var direction_to_mouse = (mouse_pos - global_position).normalized()
+	var target_angle = direction_to_mouse.angle()
+
+	# Smooth interpolation for fluid movement
+	current_flashlight_angle = lerp_angle(current_flashlight_angle, target_angle, 0.15)
+	flashlight.rotation = current_flashlight_angle
 
 
 func _update_yarn() -> void:

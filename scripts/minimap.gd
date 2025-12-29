@@ -1,8 +1,8 @@
 extends SubViewportContainer
 class_name Minimap
 
-const MINIMAP_SIZE: Vector2 = Vector2(200, 200)  # Fixed size for minimap display
-
+# Minimap display settings
+@export var max_minimap_size: float = 200.0  # Maximum dimension
 @export var margin: Vector2 = Vector2(20, 20)
 
 @onready var viewport: SubViewport = $SubViewport
@@ -14,6 +14,7 @@ var players: Array[Player] = []
 var maze_bounds: Vector2 = Vector2(800, 600)
 var maze_ref: MazeGen
 var yarn_trail_ref: YarnTrail
+var minimap_size: Vector2 = Vector2(200, 200)
 
 
 func _ready() -> void:
@@ -31,11 +32,19 @@ func _process(_delta: float) -> void:
 
 func _position_minimap() -> void:
 	var screen_size = get_viewport_rect().size
-	position = Vector2(screen_size.x - MINIMAP_SIZE.x - margin.x, margin.y)
+	position = Vector2(screen_size.x - minimap_size.x - margin.x, margin.y)
 
 
 func set_maze_bounds(bounds: Vector2) -> void:
 	maze_bounds = bounds
+	# Calculate minimap size to maintain aspect ratio
+	var aspect = bounds.x / bounds.y
+	if aspect >= 1.0:
+		# Wider than tall
+		minimap_size = Vector2(max_minimap_size, max_minimap_size / aspect)
+	else:
+		# Taller than wide
+		minimap_size = Vector2(max_minimap_size * aspect, max_minimap_size)
 	_update_minimap_size()
 
 
@@ -52,16 +61,16 @@ func set_yarn_trail(trail: YarnTrail) -> void:
 
 
 func _update_minimap_size() -> void:
-	custom_minimum_size = MINIMAP_SIZE
-	size = MINIMAP_SIZE
+	custom_minimum_size = minimap_size
+	size = minimap_size
 
 	if viewport:
-		viewport.size = Vector2i(MINIMAP_SIZE)
+		viewport.size = Vector2i(minimap_size)
 
 	if minimap_camera:
 		# Calculate zoom to fit entire maze in minimap
-		var zoom_x = MINIMAP_SIZE.x / maze_bounds.x
-		var zoom_y = MINIMAP_SIZE.y / maze_bounds.y
+		var zoom_x = minimap_size.x / maze_bounds.x
+		var zoom_y = minimap_size.y / maze_bounds.y
 		var zoom_val = min(zoom_x, zoom_y)
 		minimap_camera.zoom = Vector2(zoom_val, zoom_val)
 		minimap_camera.position = maze_bounds / 2
@@ -113,4 +122,4 @@ func remove_player(player: Player) -> void:
 
 
 func get_current_size() -> Vector2:
-	return MINIMAP_SIZE
+	return minimap_size

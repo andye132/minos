@@ -1,20 +1,20 @@
-[gd_scene load_steps=8 format=3 uid="uid://player123"]
+[gd_scene load_steps=9 format=3 uid="uid://player123"]
 
 [ext_resource type="Script" uid="uid://bvixxpfba26ot" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Script" uid="uid://swx1dn8cm5tt" path="res://scripts/inventory.gd" id="2_inventory"]
+[ext_resource type="Texture2D" uid="uid://d0dsbux5isdfs" path="res://Images/texture.tres" id="2_qhqgy"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_player"]
 radius = 16.0
 
 [sub_resource type="Gradient" id="Gradient_g2els"]
-offsets = PackedFloat32Array(0.2, 0.21333334, 1)
-colors = PackedColorArray(0.9396552, 0.9396552, 0.9396552, 1, 1, 1, 1, 1, 0, 0, 0, 1)
+offsets = PackedFloat32Array(0.072916664, 0.7395833)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_qhqgy"]
 gradient = SubResource("Gradient_g2els")
 fill = 1
-fill_from = Vector2(0.5, 0.4906542)
-fill_to = Vector2(0.5, 0)
+fill_from = Vector2(0.49375, 0.50625)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
 radius = 40.0
@@ -28,6 +28,9 @@ properties/0/replication_mode = 1
 z_index = 5
 collision_mask = 2
 script = ExtResource("1_player")
+move_speed = 100.0
+dash_duration = 0.1
+dash_cooldown = 3.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_player")
@@ -37,19 +40,12 @@ color = Color(0.3, 0.7, 1, 1)
 polygon = PackedVector2Array(-12, -8, -8, -12, 0, -14, 8, -12, 12, -8, 14, 0, 12, 8, 8, 12, 0, 14, -8, 12, -12, 8, -14, 0)
 
 [node name="Flashlight" type="PointLight2D" parent="."]
-color = Color(1, 0.95, 0.85, 1)
-energy = 4.0
-shadow_enabled = true
-shadow_color = Color(0, 0, 0, 0.9)
-shadow_filter = 2
+enabled = false
 texture = SubResource("GradientTexture2D_qhqgy")
-texture_scale = 2.5
 
 [node name="AmbientLight" type="PointLight2D" parent="."]
-color = Color(0.6, 0.7, 1, 1)
-energy = 0.25
-texture = SubResource("GradientTexture2D_qhqgy")
-texture_scale = 0.8
+enabled = false
+texture = ExtResource("2_qhqgy")
 
 [node name="DashTimer" type="Timer" parent="."]
 one_shot = true
