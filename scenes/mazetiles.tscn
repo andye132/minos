@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://y2b7qyyenrmf" path="res://fences.png" id="1_lv2xb"]
 [ext_resource type="Script" uid="uid://dr54lqu3h8cov" path="res://scenes/mazetiles.gd" id="2_dbrkq"]
-[ext_resource type="Texture2D" uid="uid://3mr85l31vwwq" path="res://plains.png" id="2_hyqqd"]
+[ext_resource type="Texture2D" uid="uid://c27kodgdjeb0k" path="res://plains.png" id="2_hyqqd"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_85g3d"]
 texture = ExtResource("1_lv2xb")
