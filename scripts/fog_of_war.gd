@@ -8,7 +8,7 @@ var yarn_trail: YarnTrail
 # Fog settings
 @export var fog_color: Color = Color(0.0, 0.0, 0.0, 1.0)
 @export var revealed_color: Color = Color(0.0, 0.0, 0.0, 0.553)
-@export var flashlight_range: float = 60.0
+@export var flashlight_range: float = 120.0
 @export var flashlight_angle: float = 30.0
 @export var yarn_glow_radius: float = 30.0
 @export var ambient_radius: float = 40.0

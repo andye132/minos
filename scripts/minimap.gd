@@ -11,7 +11,7 @@ class_name Minimap
 @onready var player_markers: Node2D = $SubViewport/PlayerMarkers
 
 var players: Array[Player] = []
-var maze_bounds: Vector2 = Vector2(200, 200)
+var maze_bounds: Vector2 = Vector2(50, 50)
 var maze_ref: MazeGen
 var yarn_trail_ref: YarnTrail
 var minimap_size: Vector2 = Vector2(200, 200)

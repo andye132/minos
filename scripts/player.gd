@@ -2,7 +2,7 @@ extends CharacterBody2D
 class_name Player
 
 # Movement
-@export var move_speed: float = 100.0
+@export var move_speed: float = 200.0
 @export var acceleration: float = 1000.0
 @export var friction: float = 1200.0
 
@@ -11,7 +11,7 @@ class_name Player
 @export var dash_duration: float = 0.2
 @export var dash_cooldown: float = 0.8
 
-# State
+# State	
 var is_dashing: bool = false
 var can_dash: bool = true
 var dash_direction: Vector2 = Vector2.ZERO
