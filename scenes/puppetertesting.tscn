@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://b2e6rinxur3pg"]
+
+[ext_resource type="PackedScene" uid="uid://ddg585lp8ljhu" path="res://scenes/puppeter.tscn" id="1_t80wd"]
+[ext_resource type="PackedScene" uid="uid://bymew8rr8wd4o" path="res://scenes/mazetiles.tscn" id="2_r17wr"]
+
+[node name="puppetertesting" type="Node2D"]
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+position = Vector2(2376, 1525)
+
+[node name="Mazetiles" parent="NavigationRegion2D" instance=ExtResource("2_r17wr")]
+position = Vector2(-2376, -1525)
+
+[node name="puppeter" parent="." instance=ExtResource("1_t80wd")]
