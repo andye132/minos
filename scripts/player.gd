@@ -16,6 +16,10 @@ var is_dashing: bool = false
 var can_dash: bool = true
 var dash_direction: Vector2 = Vector2.ZERO
 var look_direction: Vector2 = Vector2.RIGHT
+var current_flashlight_angle: float = 0.0  # For smooth rotation
+
+# Flashlight rotation speed
+@export var flashlight_rotation_speed: float = 12.0
 
 # Yarn
 @export var starting_yarn: float = 500.0  # Starting yarn units
@@ -97,8 +101,7 @@ func _create_light_textures() -> void:
 
 
 func _create_cone_image(width: int, height: int, half_angle_deg: float) -> Image:
-	# Create a cone-shaped light texture
-	# The cone points to the right (angle 0) and will be rotated by the flashlight
+	# Create a simple cone-shaped light texture
 	var image = Image.create(width, height, false, Image.FORMAT_RGBA8)
 
 	var center = Vector2(width / 2.0, height / 2.0)
@@ -111,19 +114,12 @@ func _create_cone_image(width: int, height: int, half_angle_deg: float) -> Image
 			var dist = pos.length()
 			var angle = abs(atan2(pos.y, pos.x))
 
-			# Check if within cone angle (pointing right, so angle from 0)
+			# Simple cone - only light if within angle and pointing forward
 			if angle <= half_angle_rad and pos.x >= 0:
-				# Inside the cone
 				var dist_factor = 1.0 - (dist / max_dist)
 				dist_factor = clampf(dist_factor, 0.0, 1.0)
 
-				# Soften edges of the cone
-				var angle_factor = 1.0 - (angle / half_angle_rad)
-				angle_factor = pow(angle_factor, 0.5)  # Soft edge falloff
-
-				var alpha = dist_factor * angle_factor
-				alpha = pow(alpha, 0.7)  # Adjust falloff curve
-
+				var alpha = dist_factor
 				image.set_pixel(x, y, Color(1, 1, 1, alpha))
 			else:
 				image.set_pixel(x, y, Color(0, 0, 0, 0))
@@ -243,7 +239,12 @@ func _on_dash_cooldown_finished() -> void:
 
 
 func _update_flashlight_rotation() -> void:
-	flashlight.rotation = look_direction.angle()
+	var target_angle = look_direction.angle()
+	var delta = get_physics_process_delta_time()
+
+	# Smooth rotation using lerp_angle
+	current_flashlight_angle = lerp_angle(current_flashlight_angle, target_angle, flashlight_rotation_speed * delta)
+	flashlight.rotation = current_flashlight_angle
 
 
 func _update_yarn() -> void:
