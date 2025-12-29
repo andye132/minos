@@ -7,10 +7,10 @@ var yarn_trail_ref: YarnTrail
 
 # Colors
 var fog_color: Color = Color(0.08, 0.08, 0.1, 1.0)
-var wall_color: Color = Color(0.25, 0.2, 0.18, 1.0)
-var lit_hallway_color: Color = Color(0.5, 0.45, 0.35, 1.0)
+var wall_color: Color = Color(0.0, 0.0, 0.0, 1.0)
+var lit_hallway_color: Color = Color(0.499, 0.449, 0.349, 1.0)
 var yarn_color: Color = Color(1.0, 0.7, 0.2, 1.0)
-var yarn_color_broken: Color = Color(0.4, 0.3, 0.2, 0.5)
+var yarn_color_broken: Color = Color(0.0, 0.0, 0.0, 0.5)
 var yarn_width: float = 4.0
 var glow_radius: float = 80.0
 

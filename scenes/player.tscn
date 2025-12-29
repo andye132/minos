@@ -8,13 +8,13 @@
 radius = 16.0
 
 [sub_resource type="Gradient" id="Gradient_g2els"]
-offsets = PackedFloat32Array(0.072916664, 0.7395833)
+offsets = PackedFloat32Array(0, 0.87309647)
 colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_qhqgy"]
 gradient = SubResource("Gradient_g2els")
 fill = 1
-fill_from = Vector2(0.49375, 0.50625)
+fill_from = Vector2(0.5, 0.508547)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
 radius = 40.0
@@ -28,9 +28,6 @@ properties/0/replication_mode = 1
 z_index = 5
 collision_mask = 2
 script = ExtResource("1_player")
-move_speed = 100.0
-dash_duration = 0.1
-dash_cooldown = 3.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_player")
@@ -40,28 +37,12 @@ color = Color(0.3, 0.7, 1, 1)
 polygon = PackedVector2Array(-12, -8, -8, -12, 0, -14, 8, -12, 12, -8, 14, 0, 12, 8, 8, 12, 0, 14, -8, 12, -12, 8, -14, 0)
 
 [node name="Flashlight" type="PointLight2D" parent="."]
-<<<<<<< HEAD
 enabled = false
 texture = SubResource("GradientTexture2D_qhqgy")
 
 [node name="AmbientLight" type="PointLight2D" parent="."]
 enabled = false
 texture = ExtResource("2_qhqgy")
-=======
-color = Color(1, 0.95, 0.85, 1)
-energy = 1.5
-shadow_enabled = true
-shadow_color = Color(0, 0, 0, 0.9)
-shadow_filter = 2
-texture = SubResource("GradientTexture2D_qhqgy")
-texture_scale = 1.2
-
-[node name="AmbientLight" type="PointLight2D" parent="."]
-color = Color(0.8, 0.85, 1, 1)
-energy = 0.3
-texture = SubResource("GradientTexture2D_qhqgy")
-texture_scale = 0.6
->>>>>>> 91596098a7820fa085a0384810b45488f66b2748
 
 [node name="DashTimer" type="Timer" parent="."]
 one_shot = true

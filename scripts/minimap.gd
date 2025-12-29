@@ -3,7 +3,7 @@ class_name Minimap
 
 # Minimap display settings
 @export var max_minimap_size: float = 200.0  # Maximum dimension
-@export var margin: Vector2 = Vector2(20, 20)
+@export var margin: Vector2 = Vector2(0, 0)
 
 @onready var viewport: SubViewport = $SubViewport
 @onready var minimap_camera: Camera2D = $SubViewport/MinimapCamera
@@ -11,7 +11,7 @@ class_name Minimap
 @onready var player_markers: Node2D = $SubViewport/PlayerMarkers
 
 var players: Array[Player] = []
-var maze_bounds: Vector2 = Vector2(800, 600)
+var maze_bounds: Vector2 = Vector2(200, 200)
 var maze_ref: MazeGen
 var yarn_trail_ref: YarnTrail
 var minimap_size: Vector2 = Vector2(200, 200)

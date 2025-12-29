@@ -6,16 +6,16 @@ var player: Player
 var yarn_trail: YarnTrail
 
 # Fog settings
-@export var fog_color: Color = Color(0.0, 0.0, 0.02, 0.95)
-@export var revealed_color: Color = Color(0.0, 0.0, 0.02, 0.6)
-@export var flashlight_range: float = 250.0
-@export var flashlight_angle: float = 45.0
-@export var yarn_glow_radius: float = 80.0
-@export var ambient_radius: float = 60.0
+@export var fog_color: Color = Color(0.0, 0.0, 0.0, 1.0)
+@export var revealed_color: Color = Color(0.0, 0.0, 0.0, 0.553)
+@export var flashlight_range: float = 60.0
+@export var flashlight_angle: float = 30.0
+@export var yarn_glow_radius: float = 30.0
+@export var ambient_radius: float = 40.0
 
 # Revealed cells for fog of war memory
 var revealed_cells: Dictionary = {}
-var cell_size: float = 32.0
+var cell_size: float = 35.0
 
 
 func _ready() -> void:
