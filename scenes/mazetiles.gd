@@ -36,12 +36,26 @@ func _ready() -> void:
 	generate_usb_room_coords()
 	print(usb_room_walls)
 	print(usb_room_walls[0])
+	#place usb walls
 	place_border(usb_room_walls[0],usb_room_walls[1],usb_room_walls[2],usb_room_walls[3])
+	
+	#place maze
 	dfs(starting_coords)
+	
+	# open enterances into maze
 	open_box_doors(-1,-1,x_dim,y_dim)
 	open_box_doors(0,0,x_dim-1,y_dim-1)
+	
+	# open entrances into usb room
 	open_box_doors(usb_room_walls[0],usb_room_walls[1],usb_room_walls[2],usb_room_walls[3])
+	# fill in usb room with floor
+	for x in range(usb_room_walls[0] + 1, usb_room_walls[2]):
+		for y in range(usb_room_walls[1] + 1, usb_room_walls[3]):
+			place_floor(Vector2i(x,y))
+	
+	#extra floor outside of map
 	place_floor_border(-2,-2, x_dim+1,y_dim+1)
+	
 	place_all_walls()
 	place_all_floors()
 	
