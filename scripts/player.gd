@@ -17,6 +17,12 @@ var can_dash: bool = true
 var dash_direction: Vector2 = Vector2.ZERO
 var look_direction: Vector2 = Vector2.RIGHT
 var current_flashlight_angle: float = 0.0  # For smooth rotation
+<<<<<<< HEAD
+=======
+
+# Flashlight rotation speed
+@export var flashlight_rotation_speed: float = 12.0
+>>>>>>> 91596098a7820fa085a0384810b45488f66b2748
 
 # Yarn
 @export var starting_yarn: float = 5000.0  # Starting yarn units
@@ -81,7 +87,11 @@ func _create_light_textures() -> void:
 
 
 func _create_cone_image(width: int, height: int, half_angle_deg: float) -> Image:
+<<<<<<< HEAD
 	# Create a smooth cone with bright center
+=======
+	# Create a simple cone-shaped light texture
+>>>>>>> 91596098a7820fa085a0384810b45488f66b2748
 	var image = Image.create(width, height, false, Image.FORMAT_RGBA8)
 
 	var center = Vector2(width / 2.0, height / 2.0)
@@ -95,6 +105,7 @@ func _create_cone_image(width: int, height: int, half_angle_deg: float) -> Image
 			var dist = pos.length()
 			var angle = abs(atan2(pos.y, pos.x))
 
+<<<<<<< HEAD
 			var alpha = 0.0
 
 			# Bright center circle
@@ -105,9 +116,15 @@ func _create_cone_image(width: int, height: int, half_angle_deg: float) -> Image
 			elif angle <= half_angle_rad and pos.x >= 0:
 				# Distance falloff - smooth curve
 				var dist_factor = 1.0 - ((dist - center_radius) / (max_dist - center_radius))
+=======
+			# Simple cone - only light if within angle and pointing forward
+			if angle <= half_angle_rad and pos.x >= 0:
+				var dist_factor = 1.0 - (dist / max_dist)
+>>>>>>> 91596098a7820fa085a0384810b45488f66b2748
 				dist_factor = clampf(dist_factor, 0.0, 1.0)
 				dist_factor = smoothstep(0.0, 1.0, dist_factor)
 
+<<<<<<< HEAD
 				# Angle falloff - very smooth at edges
 				var angle_normalized = angle / half_angle_rad
 				var angle_factor = 1.0 - smoothstep(0.5, 1.0, angle_normalized)
@@ -119,6 +136,12 @@ func _create_cone_image(width: int, height: int, half_angle_deg: float) -> Image
 				alpha = clampf(transition * 0.5, 0.0, 0.5)
 
 			image.set_pixel(x, y, Color(1, 1, 1, alpha))
+=======
+				var alpha = dist_factor
+				image.set_pixel(x, y, Color(1, 1, 1, alpha))
+			else:
+				image.set_pixel(x, y, Color(0, 0, 0, 0))
+>>>>>>> 91596098a7820fa085a0384810b45488f66b2748
 
 	return image
 
@@ -240,6 +263,7 @@ func _on_dash_cooldown_finished() -> void:
 
 
 func _update_flashlight_rotation() -> void:
+<<<<<<< HEAD
 	# Follow mouse cursor
 	var mouse_pos = get_global_mouse_position()
 	var direction_to_mouse = (mouse_pos - global_position).normalized()
@@ -247,6 +271,13 @@ func _update_flashlight_rotation() -> void:
 
 	# Smooth interpolation for fluid movement
 	current_flashlight_angle = lerp_angle(current_flashlight_angle, target_angle, 0.15)
+=======
+	var target_angle = look_direction.angle()
+	var delta = get_physics_process_delta_time()
+
+	# Smooth rotation using lerp_angle
+	current_flashlight_angle = lerp_angle(current_flashlight_angle, target_angle, flashlight_rotation_speed * delta)
+>>>>>>> 91596098a7820fa085a0384810b45488f66b2748
 	flashlight.rotation = current_flashlight_angle
 
 

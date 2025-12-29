@@ -40,12 +40,28 @@ color = Color(0.3, 0.7, 1, 1)
 polygon = PackedVector2Array(-12, -8, -8, -12, 0, -14, 8, -12, 12, -8, 14, 0, 12, 8, 8, 12, 0, 14, -8, 12, -12, 8, -14, 0)
 
 [node name="Flashlight" type="PointLight2D" parent="."]
+<<<<<<< HEAD
 enabled = false
 texture = SubResource("GradientTexture2D_qhqgy")
 
 [node name="AmbientLight" type="PointLight2D" parent="."]
 enabled = false
 texture = ExtResource("2_qhqgy")
+=======
+color = Color(1, 0.95, 0.85, 1)
+energy = 1.5
+shadow_enabled = true
+shadow_color = Color(0, 0, 0, 0.9)
+shadow_filter = 2
+texture = SubResource("GradientTexture2D_qhqgy")
+texture_scale = 1.2
+
+[node name="AmbientLight" type="PointLight2D" parent="."]
+color = Color(0.8, 0.85, 1, 1)
+energy = 0.3
+texture = SubResource("GradientTexture2D_qhqgy")
+texture_scale = 0.6
+>>>>>>> 91596098a7820fa085a0384810b45488f66b2748
 
 [node name="DashTimer" type="Timer" parent="."]
 one_shot = true
