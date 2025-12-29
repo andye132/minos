@@ -16,8 +16,8 @@ func _ready() -> void:
 	player.set_yarn_trail(yarn_trail)
 
 	# Calculate maze bounds from the maze generator
-	# Maze uses 16x16 tiles scaled by 3x
-	var tile_size = 16.0 * 3.0  # 48 pixels per tile
+	# Maze uses 16x16 tiles scaled by 5x (check main.tscn Mazetiles scale)
+	var tile_size = 16.0 * 5.0  # 80 pixels per tile
 	var maze_width = maze.x_dim * tile_size
 	var maze_height = maze.y_dim * tile_size
 	var maze_bounds = Vector2(maze_width, maze_height)
@@ -35,6 +35,9 @@ func _ready() -> void:
 	fog_of_war.player = player
 	fog_of_war.yarn_trail = yarn_trail
 	fog_of_war.setup(maze_width, maze_height)
+
+	# Connect fog of war to minimap
+	minimap.set_fog_of_war(fog_of_war)
 
 	# Connect inventory UI
 	inventory_ui.connect_to_inventory(player.get_inventory())

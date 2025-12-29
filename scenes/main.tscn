@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://dql4rkolmq5ra" path="res://scenes/inventory_ui.tscn" id="5_inventory"]
 [ext_resource type="PackedScene" uid="uid://worlditem123" path="res://scenes/world_item.tscn" id="6_item"]
 [ext_resource type="PackedScene" uid="uid://yarntrail123" path="res://scenes/yarn_trail.tscn" id="7_yarn"]
+[ext_resource type="Shader" uid="uid://buk7t6bcp8tn2" path="res://scripts/SHADER.gdshader" id="10_choun"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -17,7 +18,7 @@ scale = Vector2(5, 5)
 [node name="YarnTrail" parent="." instance=ExtResource("7_yarn")]
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
-position = Vector2(357, 303)
+position = Vector2(335, 315)
 
 [node name="Items" type="Node2D" parent="."]
 
@@ -32,7 +33,7 @@ item_type = 0
 yarn_amount = 500.0
 
 [node name="Sword1" parent="Items" instance=ExtResource("6_item")]
-position = Vector2(650, 150)
+position = Vector2(390, 317)
 
 [node name="Torch1" parent="Items" instance=ExtResource("6_item")]
 position = Vector2(150, 450)
@@ -41,8 +42,6 @@ item_type = 2
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="Minimap" parent="CanvasLayer" instance=ExtResource("4_minimap")]
-offset_left = -170.0
-offset_bottom = 170.0
 
 [node name="InventoryUI" parent="CanvasLayer" instance=ExtResource("5_inventory")]
 
@@ -50,8 +49,18 @@ offset_bottom = 170.0
 offset_left = 20.0
 offset_top = 20.0
 offset_right = 300.0
-offset_bottom = 120.0
+offset_bottom = 140.0
 text = "WASD - Move
 Shift - Dash
 E - Pick up item
-1/2/3 - Select slot"
+1/2/3 - Select slot
+Left Click + Drag - Swing sword"
+
+[node name="SHNADR" type="CanvasLayer" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="SHNADR"]
+visible = false
+material = SubResource("ShaderMaterial_ya4ey")
+use_parent_material = true
+offset_right = 1286.0
+offset_bottom = 722.0

@@ -9,6 +9,8 @@ enum ItemType { YARN, SWORD, TORCH, KEY, NONE }
 @export var icon_color: Color = Color.WHITE
 @export var stackable: bool = false
 @export var quantity: int = 1
+@export var damage: int = 0
+@export var attack_range: float = 60.0  # Swing radius in pixels
 
 
 func _init(type: ItemType = ItemType.NONE, name: String = "Unknown", desc: String = "", color: Color = Color.WHITE) -> void:
@@ -35,6 +37,8 @@ static func create_sword() -> Item:
 	item.item_name = "Sword"
 	item.description = "A sharp blade"
 	item.icon_color = Color(0.7, 0.7, 0.8)
+	item.damage = 25
+	item.attack_range = 70.0
 	return item
 
 
