@@ -11,6 +11,23 @@ extends CharacterBody2D
 var health := max_health
 @onready var health_bar := $HealthBar
 
+@export var attack_radius := 80.0
+@export var dash_prep_time := 0.5
+@export var dash_speed := 400.0
+@export var dash_distance := 200.0
+
+var dash_state := "idle"        # "idle", "prep", "dashing", "post_pause"
+var dash_timer := 0.0
+var dash_target := Vector2.ZERO
+
+@export var chase_speed := 150.0  # faster than normal speed
+var players := []
+var current_target_player: Node2D = null
+var player_last_seen: Vector2 = Vector2.ZERO
+var chasing_player := false
+var investigating_last_seen := false
+
+var current_scene
 @export var navigation_region_path: NodePath
 
 @onready var agent := $NavigationAgent2D
@@ -33,8 +50,86 @@ func _ready():
 	if health_bar:
 		health_bar.max_value = max_health
 		health_bar.value = health
+	current_scene = get_tree().current_scene
+	
+	_update_players()
 
 func _physics_process(delta):
+	_update_player_detection()
+	
+	if current_target_player != null:
+		var dist_to_player = global_position.distance_to(current_target_player.global_position)
+		
+		# Start prep if close and idle
+		if dash_state == "idle" and dist_to_player <= attack_radius:
+			dash_state = "prep"
+			dash_timer = dash_prep_time
+			# Lock dash target as a fixed position at a set distance toward the player
+			var dir = (current_target_player.global_position - global_position).normalized()
+			dash_target = global_position + dir * dash_distance  # dash_distance can be set as you like
+			velocity = Vector2.ZERO
+			move_and_slide()
+			return
+		
+		# Handle dash phases
+		match dash_state:
+			"prep":
+				dash_timer -= delta
+				velocity = Vector2.ZERO
+				move_and_slide()
+				if dash_timer <= 0:
+					dash_state = "dashing"
+				return
+			"dashing":
+				var dir = dash_target - global_position
+				var dist_left = dir.length()
+				if dist_left < 1:
+					# Reached target → post-pause
+					dash_state = "post_pause"
+					dash_timer = dash_prep_time
+					velocity = Vector2.ZERO
+				else:
+					velocity = dir.normalized() * dash_speed
+					# Move and check collision
+					var collision = move_and_collide(velocity * delta)
+					
+					print (collision)
+					if collision:
+						# Hit something → post-pause immediately
+						_resolve_player_overlap()
+						dash_state = "post_pause"
+						dash_timer = dash_prep_time
+						velocity = Vector2.ZERO
+				return
+			"post_pause":
+				dash_timer -= delta
+				velocity = Vector2.ZERO
+				move_and_slide()
+				_resolve_player_overlap()
+				if dash_timer <= 0:
+					dash_state = "idle"
+				return
+
+	
+	if chasing_player and current_target_player:
+		# Chase the player
+		agent.target_position = current_target_player.global_position
+		velocity = (agent.target_position - global_position).normalized() * chase_speed
+		move_and_slide()
+		return
+	elif investigating_last_seen:
+		# Go to last seen position
+		agent.target_position = player_last_seen
+		if agent.is_navigation_finished():
+			# Arrived → resume normal behavior
+			investigating_last_seen = false
+			chasing_player = false
+		else:
+			var next_pos = agent.get_next_path_position()
+			velocity = (next_pos - global_position).normalized() * speed
+			move_and_slide()
+		return
+	
 	# Pause timer for roaming
 	if wait_timer > 0:
 		wait_timer -= delta
@@ -101,7 +196,52 @@ func _pick_new_roam_target():
 func get_vision_radius() -> float:
 	return vision_radius
 	
+func _update_player_detection():
+	var closest_player: Node2D = null
+	var closest_distance := vision_radius + 1
+	for p in players:
+		var dist = global_position.distance_to(p.global_position)
+		if dist <= vision_radius and _has_line_of_sight_to(p):
+			if dist < closest_distance:
+				closest_distance = dist
+				closest_player = p
+
+	if closest_player != null:
+		# Player visible → chase
+		chasing_player = true
+		investigating_last_seen = false
+		current_target_player = closest_player
+		player_last_seen = closest_player.global_position
+	else:
+		# No visible player → investigate last seen if was chasing
+		if chasing_player:
+			chasing_player = false
+			investigating_last_seen = true
+
+# LOS check using Godot 4 PhysicsRayQueryParameters2D
+func _has_line_of_sight_to(target: Node2D) -> bool:
+	var space_state = get_world_2d().direct_space_state
+	var query = PhysicsRayQueryParameters2D.create(global_position, target.global_position)
+	query.exclude = [self]
+	query.collision_mask = 2  # walls layer
+	var result = space_state.intersect_ray(query)
+	return result.keys().size() == 0
 	
+func _update_players():
+	players = []
+	for child in current_scene.get_children():
+		if child.name == "Player":  # or `if child is Player`
+			players.append(child)
+			
+func _resolve_player_overlap():
+	for p in players:
+		var overlap = global_position - p.global_position
+		var distance = overlap.length()
+		var min_distance = 50  # adjust based on your enemy+player size
+		if distance < min_distance and distance > 0:
+			var push_dir = overlap.normalized()
+			# Smoothly interpolate away from player
+			global_position = global_position.lerp(global_position + push_dir * (min_distance - distance), 0.5)
 
 func take_damage(amount: int):
 	health -= amount

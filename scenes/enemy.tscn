@@ -8,6 +8,7 @@ radius = 16.0
 [sub_resource type="Theme" id="Theme_7p1mj"]
 
 [node name="enemy" type="CharacterBody2D"]
+collision_mask = 3
 script = ExtResource("1_7p1mj")
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
