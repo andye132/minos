@@ -7,6 +7,10 @@ extends CharacterBody2D
 @export var stuck_threshold := 2.0
 @export var vision_radius := 200.0  # how far this minion can see (for fog of war)
 
+@export var max_health := 100
+var health := max_health
+@onready var health_bar := $HealthBar
+
 @export var navigation_region_path: NodePath
 
 @onready var agent := $NavigationAgent2D
@@ -24,6 +28,11 @@ func _ready():
 	last_position = global_position
 	if nav_region != null and agent != null:
 		agent.set_navigation_map(nav_region.get_navigation_map())
+		
+	health = max_health
+	if health_bar:
+		health_bar.max_value = max_health
+		health_bar.value = health
 
 func _physics_process(delta):
 	# Pause timer for roaming
@@ -91,3 +100,18 @@ func _pick_new_roam_target():
 # Vision API for fog of war
 func get_vision_radius() -> float:
 	return vision_radius
+	
+	
+
+func take_damage(amount: int):
+	health -= amount
+	health = max(health, 0)
+
+	if health_bar:
+		health_bar.value = health
+
+	if health <= 0:
+		die()
+
+func die():
+	queue_free()
