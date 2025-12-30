@@ -2,6 +2,7 @@ extends Node
 
 # This is the custom signal your Spawner will listen for
 signal request_player_spawn(id: int)
+signal request_puppeteer_spawn(id: int)
 
 const IP_ADDRESS := "127.0.0.1"
 const PORT := 8910
@@ -23,7 +24,7 @@ func start_server() -> void:
 	
 	print("Server started on port ", PORT)
 	
-	request_player_spawn.emit(1)
+	request_puppeteer_spawn.emit(1)
 
 func start_client() -> void:
 	peer = ENetMultiplayerPeer.new()

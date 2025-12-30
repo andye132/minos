@@ -75,3 +75,5 @@ position = Vector2(330, 305)
 [node name="Torch1" parent="Items" instance=ExtResource("7_3e2sx")]
 position = Vector2(150, 450)
 item_type = 2
+
+[editable path="Player"]

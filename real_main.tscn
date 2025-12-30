@@ -1,0 +1,25 @@
+[gd_scene load_steps=7 format=3 uid="uid://bolpupus30lbu"]
+
+[ext_resource type="PackedScene" uid="uid://1ciik3ucgvf5" path="res://scenes/start_screenv_2.tscn" id="1_1ps8a"]
+[ext_resource type="Script" uid="uid://dgwdseyjagsau" path="res://real_main.gd" id="1_qj2yo"]
+[ext_resource type="Script" uid="uid://bqtx7k2echv1m" path="res://multiplayer_spawner.gd" id="2_qj2yo"]
+[ext_resource type="PackedScene" uid="uid://player123" path="res://scenes/player.tscn" id="3_5fq4g"]
+[ext_resource type="PackedScene" uid="uid://ddg585lp8ljhu" path="res://scenes/puppeter.tscn" id="4_b551m"]
+[ext_resource type="PackedScene" uid="uid://bymew8rr8wd4o" path="res://scenes/mazetiles.tscn" id="6_x2ry1"]
+
+[node name="real_main" type="Node2D"]
+script = ExtResource("1_qj2yo")
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://player123")
+spawn_path = NodePath("..")
+script = ExtResource("2_qj2yo")
+network_player = ExtResource("3_5fq4g")
+network_puppeteer = ExtResource("4_b551m")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+
+[node name="Mazetiles" parent="NavigationRegion2D" instance=ExtResource("6_x2ry1")]
+scale = Vector2(0.8, 0.8)
+
+[node name="StartScreenv2" parent="." instance=ExtResource("1_1ps8a")]

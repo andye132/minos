@@ -62,6 +62,8 @@ signal yarn_amount_changed(amount: float)
 signal hp_changed(current: int, maximum: int)
 signal player_died()
 
+var nav_region: NavigationRegion2D
+var maze_ref: MazeGen
 
 func _enter_tree() -> void:
 	if name.is_valid_int():
@@ -73,12 +75,30 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	# multiplay map connect 
+	# Get references after node is in tree
+	nav_region = get_parent().get_node_or_null("NavigationRegion2D")
+	if nav_region:
+		maze_ref = nav_region.get_node_or_null("Mazetiles") as MazeGen
+	
+	# Disable game logic until start
+	if nav_region:
+		nav_region.set_process(false)
+		nav_region.visible = false
+	if maze_ref:
+		maze_ref.set_process(false)
+		maze_ref.visible = false
+	
+	
 	_setup_lights()
 
 	if is_multiplayer_authority():
 		$Camera2D.make_current()
 	else:
 		$Camera2D.enabled = false
+	
+	print(self.get_path())
+
 
 	# Setup inventory with starting yarn
 	var yarn_item = Item.create_yarn(starting_yarn)
@@ -102,6 +122,15 @@ func _ready() -> void:
 	dash_cooldown_timer.timeout.connect(_on_dash_cooldown_finished)
 	pickup_area.area_entered.connect(_on_pickup_area_entered)
 	pickup_area.area_exited.connect(_on_pickup_area_exited)
+	
+func start_game():
+	if nav_region:
+		nav_region.set_process(true)
+		nav_region.visible = true
+	if maze_ref:
+		maze_ref.set_process(true)
+		maze_ref.visible = true
+		maze_ref.start_game()
 
 
 func _setup_lights() -> void:
@@ -452,3 +481,6 @@ func get_lantern_radius() -> float:
 func is_lantern_active() -> bool:
 	return lantern_active
 	
+@rpc("any_peer", "call_local", "reliable")
+func rpc_start_game():
+	start_game()
