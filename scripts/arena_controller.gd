@@ -2,19 +2,22 @@ extends Node2D
 
 const FogOfWarScript = preload("res://scripts/fog_of_war.gd")
 const BoonManagerScript = preload("res://scripts/boon_manager.gd")
-const ActiveBoonsUIScene = preload("res://scenes/active_boons_ui.tscn")
+const PlayerHUDScene = preload("res://scenes/player_hud.tscn")
 
 @onready var player: Player = $Player
 @onready var yarn_trail: YarnTrail = $YarnTrail
 @onready var puppeteer = $Puppeteer
 @onready var puppeteer_camera: Camera2D = $Puppeteer/Camera2D
 @onready var nav_region: NavigationRegion2D = $NavigationRegion2D
+@onready var minimap: Minimap = $CanvasLayer/Minimap
+@onready var inventory_ui: InventoryUI = $CanvasLayer/InventoryUI
+@onready var canvas_layer: CanvasLayer = $CanvasLayer
 
 var player_camera: Camera2D
 var player_fog: Node2D
 var is_player_view: bool = true
 var boon_manager: BoonManager
-var active_boons_ui: ActiveBoonsUI
+var player_hud: PlayerHUD
 
 # Tile size settings
 var base_tile_size: float = 160.0
@@ -28,16 +31,32 @@ func _ready() -> void:
 	# Connect yarn trail to player
 	player.set_yarn_trail(yarn_trail)
 
+	# Setup minimap
+	_setup_minimap()
+
 	# Setup player's fog of war
 	_setup_player_fog()
 
 	# Setup boon system
 	_setup_boon_system()
 
+	# Connect inventory UI
+	if inventory_ui:
+		inventory_ui.connect_to_inventory(player.get_inventory())
+		inventory_ui.update_yarn_display(player.yarn_in_inventory)
+
+	# Connect yarn amount display
+	player.yarn_amount_changed.connect(_on_yarn_amount_changed)
+
 	# Set initial view to player
 	_switch_to_player_view()
 
 	print("Arena loaded - Press TAB to switch views")
+
+
+func _on_yarn_amount_changed(amount: float) -> void:
+	if inventory_ui:
+		inventory_ui.update_yarn_display(amount)
 
 
 func _input(event: InputEvent) -> void:
@@ -64,6 +83,12 @@ func _switch_to_player_view() -> void:
 		player_fog.visible = true
 	if puppeteer.fog_of_war:
 		puppeteer.fog_of_war.visible = false
+
+	# Show player UI
+	if canvas_layer:
+		canvas_layer.visible = true
+	if player_hud:
+		player_hud.visible = true
 
 	print("Switched to PLAYER view")
 
@@ -94,7 +119,30 @@ func _switch_to_puppeteer_view() -> void:
 	if puppeteer.fog_of_war:
 		puppeteer.fog_of_war.visible = true
 
+	# Hide player UI in puppeteer view
+	if canvas_layer:
+		canvas_layer.visible = false
+	if player_hud:
+		player_hud.visible = false
+
 	print("Switched to PUPPETEER view")
+
+
+func _setup_minimap() -> void:
+	if not minimap:
+		return
+
+	var maze_ref = nav_region.get_node_or_null("Mazetiles") as MazeGen
+	if maze_ref:
+		var world_tile_size = base_tile_size * world_scale
+		var maze_width = maze_ref.x_dim * world_tile_size
+		var maze_height = maze_ref.y_dim * world_tile_size
+		var maze_bounds = Vector2(maze_width, maze_height)
+
+		minimap.add_player(player)
+		minimap.set_maze_bounds(maze_bounds)
+		minimap.set_maze_reference(maze_ref)
+		minimap.set_yarn_trail(yarn_trail)
 
 
 func _setup_player_fog() -> void:
@@ -112,6 +160,10 @@ func _setup_player_fog() -> void:
 
 	add_child(player_fog)
 
+	# Connect fog to minimap
+	if minimap:
+		minimap.set_fog_of_war(player_fog)
+
 
 func _setup_boon_system() -> void:
 	var maze_ref = nav_region.get_node_or_null("Mazetiles") as MazeGen
@@ -127,11 +179,9 @@ func _setup_boon_system() -> void:
 	# Setup with maze and player spawn position
 	boon_manager.setup(maze_ref, player.global_position)
 
-	# Create boons UI
-	var ui_layer = $UI
-	if ui_layer:
-		active_boons_ui = ActiveBoonsUIScene.instantiate()
-		ui_layer.add_child(active_boons_ui)
-		active_boons_ui.setup(player)
+	# Create player HUD (includes health, stats, and boons)
+	player_hud = PlayerHUDScene.instantiate()
+	add_child(player_hud)
+	player_hud.setup(player)
 
 	print("Boon system initialized")

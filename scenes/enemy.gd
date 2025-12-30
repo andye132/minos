@@ -11,6 +11,7 @@ class_name Enemy
 @export var max_health := 100
 var health := max_health
 @onready var health_bar := $HealthBar
+@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 @export var attack_radius := 80.0
 @export var dash_prep_time := 0.5
@@ -20,6 +21,7 @@ var health := max_health
 var dash_state := "idle"        # "idle", "prep", "dashing", "post_pause"
 var dash_timer := 0.0
 var dash_target := Vector2.ZERO
+var last_direction := Vector2.DOWN  # Track last movement direction for idle animation
 
 @export var chase_speed := 150.0  # faster than normal speed
 var players := []
@@ -79,6 +81,9 @@ func _physics_process(delta):
 			"prep":
 				dash_timer -= delta
 				velocity = Vector2.ZERO
+				# Show dash direction during prep (wind up animation)
+				var prep_dir = (dash_target - global_position).normalized()
+				_update_animation(prep_dir, true)
 				move_and_slide()
 				if dash_timer <= 0:
 					dash_state = "dashing"
@@ -91,16 +96,18 @@ func _physics_process(delta):
 					dash_state = "post_pause"
 					dash_timer = dash_prep_time
 					velocity = Vector2.ZERO
+					_update_animation(Vector2.ZERO, false)
 				else:
 					velocity = dir.normalized() * dash_speed
+					_update_animation(dir, true)
 					# Move and check collision
 					var collision = move_and_collide(velocity * delta)
-					
-					print (collision)
+
 					if collision:
 						dash_state = "post_pause"
 						dash_timer = dash_prep_time
 						velocity = Vector2.ZERO
+						_update_animation(Vector2.ZERO, false)
 						if collision.get_collider() is Player:
 							_resolve_player_overlap()
 							collision.get_collider().take_damage(20)
@@ -110,6 +117,7 @@ func _physics_process(delta):
 			"post_pause":
 				dash_timer -= delta
 				velocity = Vector2.ZERO
+				_update_animation(Vector2.ZERO, false)
 				move_and_slide()
 				_resolve_player_overlap()
 				if dash_timer <= 0:
@@ -120,7 +128,9 @@ func _physics_process(delta):
 	if chasing_player and current_target_player:
 		# Chase the player
 		agent.target_position = current_target_player.global_position
-		velocity = (agent.target_position - global_position).normalized() * chase_speed
+		var chase_dir = (agent.target_position - global_position).normalized()
+		velocity = chase_dir * chase_speed
+		_update_animation(chase_dir, false)
 		move_and_slide()
 		_resolve_enemy_overlap()
 		return
@@ -131,9 +141,12 @@ func _physics_process(delta):
 			# Arrived → resume normal behavior
 			investigating_last_seen = false
 			chasing_player = false
+			_update_animation(Vector2.ZERO, false)
 		else:
 			var next_pos = agent.get_next_path_position()
-			velocity = (next_pos - global_position).normalized() * speed
+			var investigate_dir = (next_pos - global_position).normalized()
+			velocity = investigate_dir * speed
+			_update_animation(investigate_dir, false)
 			move_and_slide()
 			_resolve_enemy_overlap()
 		return
@@ -142,6 +155,7 @@ func _physics_process(delta):
 	if wait_timer > 0:
 		wait_timer -= delta
 		velocity = Vector2.ZERO
+		_update_animation(Vector2.ZERO, false)
 		move_and_slide()
 		_resolve_enemy_overlap()
 		return
@@ -165,6 +179,7 @@ func _physics_process(delta):
 
 	# Check if path finished
 	if agent.is_navigation_finished():
+		_update_animation(Vector2.ZERO, false)
 		if roaming:
 			wait_timer = pause_time
 			_pick_new_roam_target()
@@ -178,6 +193,7 @@ func _physics_process(delta):
 	var next_pos = agent.get_next_path_position()
 	var dir = (next_pos - global_position).normalized()
 	velocity = dir * speed
+	_update_animation(dir, false)
 	move_and_slide()
 	_resolve_enemy_overlap()
 
@@ -282,3 +298,43 @@ func take_damage(amount: int) -> void:
 func _die() -> void:
 	print("Enemy died!")
 	queue_free()
+
+
+# Animation handling based on movement direction
+func _update_animation(direction: Vector2, is_dashing: bool = false) -> void:
+	if not animated_sprite:
+		return
+
+	# Skip if no movement
+	if direction.length() < 0.1:
+		animated_sprite.stop()
+		return
+
+	# Store last direction for reference
+	last_direction = direction.normalized()
+
+	# Determine animation name based on direction quadrant
+	var anim_prefix = "Dash_" if is_dashing else "Walk_"
+	var anim_suffix: String
+
+	# Use the larger component to determine primary direction
+	if abs(direction.y) >= abs(direction.x):
+		# Vertical movement dominant
+		if direction.y > 0:
+			anim_suffix = "Down"
+		else:
+			anim_suffix = "Up"
+	else:
+		# Horizontal movement dominant
+		if direction.x > 0:
+			anim_suffix = "Right"
+		else:
+			anim_suffix = "Left"
+
+	var anim_name = anim_prefix + anim_suffix
+
+	# Only change animation if different
+	if animated_sprite.animation != anim_name:
+		animated_sprite.play(anim_name)
+	elif not animated_sprite.is_playing():
+		animated_sprite.play(anim_name)

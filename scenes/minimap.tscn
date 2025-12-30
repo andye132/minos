@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://minimap123"]
+[gd_scene load_steps=3 format=3]
 
-[ext_resource type="Script" uid="uid://2yj5ug5564gp" path="res://scripts/minimap.gd" id="1_minimap"]
-[ext_resource type="Script" uid="uid://d4fjx3mke2hu2" path="res://scripts/minimap_yarn_drawer.gd" id="2_yarn"]
+[ext_resource type="Script" path="res://scripts/minimap.gd" id="1_minimap"]
+[ext_resource type="Script" path="res://scripts/minimap_yarn_drawer.gd" id="2_yarn"]
 
 [node name="Minimap" type="SubViewportContainer"]
 custom_minimum_size = Vector2(280, 140)

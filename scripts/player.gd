@@ -7,7 +7,7 @@ class_name Player
 @export var friction: float = 1200.0
 
 # Dash
-@export var dash_speed: float = 300.0
+@export var dash_speed: float = 1.5*move_speed
 @export var dash_duration: float = 0.2
 @export var dash_cooldown: float = 0.8
 

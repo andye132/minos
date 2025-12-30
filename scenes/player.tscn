@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://player123"]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" uid="uid://bvixxpfba26ot" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Texture2D" uid="uid://buswu46cadvuj" path="res://Puppet1_Sprite.png" id="2_dqkch"]

@@ -1,13 +1,12 @@
-[gd_scene load_steps=10 format=3 uid="uid://bvn6nj66v4vsm"]
+[gd_scene load_steps=9 format=3 uid="uid://bvn6nj66v4vsm"]
 
-[ext_resource type="Script" uid="uid://f5mxyq6unco" path="res://scripts/main.gd" id="1_lpra2"]
-[ext_resource type="PackedScene" uid="uid://bymew8rr8wd4o" path="res://scenes/mazetiles.tscn" id="2_tipki"]
-[ext_resource type="PackedScene" uid="uid://yarntrail123" path="res://scenes/yarn_trail.tscn" id="5_lv1g8"]
-[ext_resource type="PackedScene" uid="uid://player123" path="res://scenes/player.tscn" id="6_5qc2s"]
-[ext_resource type="PackedScene" uid="uid://worlditem123" path="res://scenes/world_item.tscn" id="7_yj230"]
-[ext_resource type="PackedScene" uid="uid://minimap123" path="res://scenes/minimap.tscn" id="8_6l6tm"]
-[ext_resource type="PackedScene" uid="uid://dql4rkolmq5ra" path="res://scenes/inventory_ui.tscn" id="9_rhjg3"]
-[ext_resource type="Shader" uid="uid://buk7t6bcp8tn2" path="res://scripts/SHADER.gdshader" id="10_4isv8"]
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_lpra2"]
+[ext_resource type="PackedScene" path="res://scenes/mazetiles.tscn" id="2_tipki"]
+[ext_resource type="PackedScene" path="res://scenes/yarn_trail.tscn" id="5_lv1g8"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="6_5qc2s"]
+[ext_resource type="PackedScene" path="res://scenes/minimap.tscn" id="8_6l6tm"]
+[ext_resource type="PackedScene" path="res://scenes/inventory_ui.tscn" id="9_rhjg3"]
+[ext_resource type="Shader" path="res://scripts/SHADER.gdshader" id="10_4isv8"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ya4ey"]
 resource_local_to_scene = true
@@ -45,41 +44,11 @@ scale = Vector2(0.8, 0.8)
 [node name="Player" parent="." instance=ExtResource("6_5qc2s")]
 position = Vector2(335, 315)
 
-[node name="Items" type="Node2D" parent="."]
-
-[node name="YarnPickup1" parent="Items" instance=ExtResource("7_yj230")]
-position = Vector2(200, 150)
-item_type = 0
-yarn_amount = 1000.0
-
-[node name="YarnPickup2" parent="Items" instance=ExtResource("7_yj230")]
-position = Vector2(600, 450)
-item_type = 0
-yarn_amount = 500.0
-
-[node name="Sword1" parent="Items" instance=ExtResource("7_yj230")]
-position = Vector2(359, 322)
-
-[node name="Torch1" parent="Items" instance=ExtResource("7_yj230")]
-position = Vector2(150, 450)
-item_type = 2
-
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="Minimap" parent="CanvasLayer" instance=ExtResource("8_6l6tm")]
 
 [node name="InventoryUI" parent="CanvasLayer" instance=ExtResource("9_rhjg3")]
-
-[node name="Controls" type="Label" parent="CanvasLayer"]
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 300.0
-offset_bottom = 140.0
-text = "WASD - Move
-Shift - Dash
-E - Pick up item
-1/2/3 - Select slot
-Left Click + Drag - Swing sword"
 
 [node name="SHNADR" type="CanvasLayer" parent="."]
 
