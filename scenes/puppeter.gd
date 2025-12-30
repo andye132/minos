@@ -1,10 +1,17 @@
 extends Node2D
+class_name Puppeteer
 
 const PuppeteerFogOfWarScript = preload("res://scripts/puppeteer_fog_of_war.gd")
 
 @onready var enemy_scene := preload("res://scenes/enemy.tscn")
-@onready var spawn_button := $CanvasLayer/VBoxContainer/SpawnEnemy
+@onready var spawn_button := $CanvasLayer/PlayUI/SpawnEnemy
 @onready var camera := $Camera2D
+
+@onready var start_button = $CanvasLayer/LobbyUI/StartButton
+@onready var lobby_ui = $CanvasLayer/LobbyUI
+@onready var play_ui = $CanvasLayer/PlayUI
+
+var game_started := false
 
 var nav_region: NavigationRegion2D
 var maze_ref: MazeGen
@@ -14,12 +21,39 @@ var fog_of_war: PuppeteerFogOfWar
 var base_tile_size: float = 160.0
 var world_scale: float = 0.8
 
+signal start_game_signal
+
 
 func _ready():
 	# Get references after node is in tree
 	nav_region = get_parent().get_node_or_null("NavigationRegion2D")
 	if nav_region:
 		maze_ref = nav_region.get_node_or_null("Mazetiles") as MazeGen
+	
+	# Disable game logic until start
+	if nav_region:
+		nav_region.set_process(false)
+		nav_region.visible = false
+	if maze_ref:
+		maze_ref.set_process(false)
+		maze_ref.visible = false
+
+	# Show lobby UI
+	lobby_ui.visible = true
+	play_ui.visible = false
+
+	# Connect start button
+	start_button.pressed.connect(_on_start_button_pressed)
+
+	
+func start_game():
+	if nav_region:
+		nav_region.set_process(true)
+		nav_region.visible = true
+	if maze_ref:
+		maze_ref.set_process(true)
+		maze_ref.visible = true
+		maze_ref.start_game()
 
 	# Connect the button drag/drop signal
 	spawn_button.connect("spawn_requested", Callable(self, "_on_spawn_requested"))
@@ -103,3 +137,10 @@ func _setup_fog_of_war() -> void:
 	# Add fog as sibling to Mazetiles (inside NavigationRegion2D) so it renders on top
 	nav_region.add_child(fog_of_war)
 	print("Puppeteer fog of war added to NavigationRegion2D")
+
+
+func _on_start_button_pressed() -> void:
+	emit_signal("start_game_signal")
+	lobby_ui.visible = false
+	play_ui.visible = true
+	start_game()

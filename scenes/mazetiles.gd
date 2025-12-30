@@ -32,6 +32,9 @@ var usb_room_walls: Array[int] = []
 	
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	pass
+
+func start_game():
 	place_border(-1, -1, x_dim, y_dim)
 	generate_usb_room_coords()
 	print(usb_room_walls)
