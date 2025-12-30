@@ -1,11 +1,12 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3 uid="uid://cum42ffr436gy"]
 
 [ext_resource type="PackedScene" uid="uid://bymew8rr8wd4o" path="res://scenes/mazetiles.tscn" id="1_maze"]
 [ext_resource type="PackedScene" uid="uid://yarntrail123" path="res://scenes/yarn_trail.tscn" id="2_yarn"]
 [ext_resource type="PackedScene" uid="uid://player123" path="res://scenes/player.tscn" id="3_player"]
 [ext_resource type="Script" uid="uid://bvv46ht6i2jij" path="res://scenes/puppeter.gd" id="4_puppeter"]
 [ext_resource type="Script" uid="uid://b2jj0defo5fb" path="res://scenes/spawn_enemy.gd" id="5_spawn"]
-[ext_resource type="Script" path="res://scripts/arena_controller.gd" id="6_arena"]
+[ext_resource type="Script" uid="uid://biy2nj0sgkp8f" path="res://scripts/arena_controller.gd" id="6_arena"]
+[ext_resource type="PackedScene" uid="uid://worlditem123" path="res://scenes/world_item.tscn" id="7_3e2sx"]
 
 [node name="ArenaTest" type="Node2D"]
 script = ExtResource("6_arena")
@@ -59,3 +60,22 @@ text = "TAB - Switch between Player/Puppeteer view
 WASD - Move player
 Drag 'Spawn Troop' button to spawn enemies
 Right-click - Set enemy target"
+
+[node name="Items" type="Node2D" parent="."]
+
+[node name="YarnPickup1" parent="Items" instance=ExtResource("7_3e2sx")]
+position = Vector2(200, 150)
+item_type = 0
+yarn_amount = 1000.0
+
+[node name="YarnPickup2" parent="Items" instance=ExtResource("7_3e2sx")]
+position = Vector2(600, 450)
+item_type = 0
+yarn_amount = 500.0
+
+[node name="Sword1" parent="Items" instance=ExtResource("7_3e2sx")]
+position = Vector2(330, 305)
+
+[node name="Torch1" parent="Items" instance=ExtResource("7_3e2sx")]
+position = Vector2(150, 450)
+item_type = 2

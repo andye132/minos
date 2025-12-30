@@ -58,7 +58,7 @@ item_type = 0
 yarn_amount = 500.0
 
 [node name="Sword1" parent="Items" instance=ExtResource("7_yj230")]
-position = Vector2(390, 317)
+position = Vector2(359, 322)
 
 [node name="Torch1" parent="Items" instance=ExtResource("7_yj230")]
 position = Vector2(150, 450)

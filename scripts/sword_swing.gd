@@ -118,14 +118,16 @@ func _check_hits_in_arc(start_angle: float, end_angle: float) -> void:
 		circle.radius = swing_width
 		query.shape = circle
 		query.transform = Transform2D(0, check_pos)
-		query.collision_mask = 4  # Enemy layer
+		query.collision_mask = 1  # Enemy layer
 
 		var results = space_state.intersect_shape(query, 10)
 		for result in results:
 			var collider = result.collider
 			if collider and not has_hit.has(collider.get_instance_id()):
 				has_hit[collider.get_instance_id()] = true
-				swing_hit.emit(collider, damage)
+				if collider is Enemy:
+					collider.take_damage(damage)
+					swing_hit.emit(collider, damage)
 
 
 func _draw() -> void:

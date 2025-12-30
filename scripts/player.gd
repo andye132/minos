@@ -363,6 +363,7 @@ func _die() -> void:
 	player_died.emit()
 	# For now, just print - you can add death logic later
 	print("Player died!")
+	queue_free()
 
 
 func get_hp() -> int:
@@ -450,3 +451,4 @@ func get_lantern_radius() -> float:
 
 func is_lantern_active() -> bool:
 	return lantern_active
+	

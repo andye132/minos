@@ -1,9 +1,10 @@
 extends CharacterBody2D
+class_name Enemy
 
 @export var speed := 120.0
 @export var roam_radius := 150.0  # how far roaming can go
 @export var pause_time := 1.0
-@export var stuck_time := 5.0
+@export var stuck_time := 10
 @export var stuck_threshold := 2.0
 @export var vision_radius := 200.0  # how far this minion can see (for fog of war)
 
@@ -26,6 +27,8 @@ var current_target_player: Node2D = null
 var player_last_seen: Vector2 = Vector2.ZERO
 var chasing_player := false
 var investigating_last_seen := false
+
+@export var overlap_distance := 50
 
 var current_scene
 @export var navigation_region_path: NodePath
@@ -95,11 +98,14 @@ func _physics_process(delta):
 					
 					print (collision)
 					if collision:
-						# Hit something → post-pause immediately
-						_resolve_player_overlap()
 						dash_state = "post_pause"
 						dash_timer = dash_prep_time
 						velocity = Vector2.ZERO
+						if collision.get_collider() is Player:
+							_resolve_player_overlap()
+							collision.get_collider().take_damage(20)
+							if(collision.get_collider().get_hp() <= 0):
+								players.erase(collision.get_collider())
 				return
 			"post_pause":
 				dash_timer -= delta
@@ -116,6 +122,7 @@ func _physics_process(delta):
 		agent.target_position = current_target_player.global_position
 		velocity = (agent.target_position - global_position).normalized() * chase_speed
 		move_and_slide()
+		_resolve_enemy_overlap()
 		return
 	elif investigating_last_seen:
 		# Go to last seen position
@@ -128,6 +135,7 @@ func _physics_process(delta):
 			var next_pos = agent.get_next_path_position()
 			velocity = (next_pos - global_position).normalized() * speed
 			move_and_slide()
+			_resolve_enemy_overlap()
 		return
 	
 	# Pause timer for roaming
@@ -135,6 +143,7 @@ func _physics_process(delta):
 		wait_timer -= delta
 		velocity = Vector2.ZERO
 		move_and_slide()
+		_resolve_enemy_overlap()
 		return
 
 	# Stuck detection (only after first target)
@@ -142,6 +151,7 @@ func _physics_process(delta):
 		if global_position.distance_to(last_position) < stuck_threshold:
 			stuck_timer += delta
 			if stuck_timer >= stuck_time:
+				print("giving up")
 				roaming = true
 				_pick_new_roam_target()
 				stuck_timer = 0.0
@@ -169,6 +179,7 @@ func _physics_process(delta):
 	var dir = (next_pos - global_position).normalized()
 	velocity = dir * speed
 	move_and_slide()
+	_resolve_enemy_overlap()
 
 # Assign first target
 func set_target(pos: Vector2):
@@ -237,21 +248,37 @@ func _resolve_player_overlap():
 	for p in players:
 		var overlap = global_position - p.global_position
 		var distance = overlap.length()
-		var min_distance = 50  # adjust based on your enemy+player size
+		var min_distance = overlap_distance  # adjust based on your enemy+player size
 		if distance < min_distance and distance > 0:
 			var push_dir = overlap.normalized()
 			# Smoothly interpolate away from player
 			global_position = global_position.lerp(global_position + push_dir * (min_distance - distance), 0.5)
+			
+func _resolve_enemy_overlap():
+	for e in get_parent().get_children():
+		if e == self or not e is CharacterBody2D:
+			continue
+		var overlap = global_position - e.global_position
+		var distance = overlap.length()
+		var min_distance = overlap_distance  # adjust based on enemy size	
+		if distance < min_distance and distance > 0:
+			var push_dir = overlap.normalized()
+			# Smoothly move away from other enemies
+			global_position = global_position.lerp(global_position + push_dir * (min_distance - distance), 0.2)
 
-func take_damage(amount: int):
+
+func take_damage(amount: int) -> void:
 	health -= amount
 	health = max(health, 0)
 
-	if health_bar:
-		health_bar.value = health
+	# Visual feedback
+	modulate = Color(1.5, 0.5, 0.5, 1.0)
+	await get_tree().create_timer(0.1).timeout
+	modulate = Color(1.0, 1.0, 1.0, 1.0)
 
 	if health <= 0:
-		die()
+		_die()
 
-func die():
+func _die() -> void:
+	print("Enemy died!")
 	queue_free()

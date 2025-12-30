@@ -12,7 +12,9 @@ collision_mask = 3
 script = ExtResource("1_7p1mj")
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
-radius = 30.0
+avoidance_enabled = true
+radius = 50.0
+avoidance_mask = 3
 
 [node name="Body" type="Polygon2D" parent="."]
 color = Color(1, 0.40272865, 0.44753087, 1)
