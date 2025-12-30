@@ -1,0 +1,61 @@
+[gd_scene load_steps=7 format=3 uid="uid://cum42ffr436gy"]
+
+[ext_resource type="PackedScene" uid="uid://bymew8rr8wd4o" path="res://scenes/mazetiles.tscn" id="1_maze"]
+[ext_resource type="PackedScene" uid="uid://yarntrail123" path="res://scenes/yarn_trail.tscn" id="2_yarn"]
+[ext_resource type="PackedScene" uid="uid://player123" path="res://scenes/player.tscn" id="3_player"]
+[ext_resource type="Script" uid="uid://bvv46ht6i2jij" path="res://scenes/puppeter.gd" id="4_puppeter"]
+[ext_resource type="Script" uid="uid://b2jj0defo5fb" path="res://scenes/spawn_enemy.gd" id="5_spawn"]
+[ext_resource type="Script" uid="uid://biy2nj0sgkp8f" path="res://scripts/arena_controller.gd" id="6_arena"]
+
+[node name="ArenaTest" type="Node2D"]
+script = ExtResource("6_arena")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
+
+[node name="Mazetiles" parent="NavigationRegion2D" instance=ExtResource("1_maze")]
+scale = Vector2(0.8, 0.8)
+
+[node name="YarnTrail" parent="." instance=ExtResource("2_yarn")]
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+position = Vector2(300, 300)
+
+[node name="Puppeteer" type="Node2D" parent="."]
+script = ExtResource("4_puppeter")
+
+[node name="Camera2D" type="Camera2D" parent="Puppeteer"]
+position = Vector2(2240, 2240)
+zoom = Vector2(0.15, 0.15)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="Puppeteer"]
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Puppeteer/CanvasLayer"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.0
+offset_top = -60.0
+offset_right = 49.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+scale = Vector2(1.5, 1.5)
+
+[node name="SpawnEnemy" type="Button" parent="Puppeteer/CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "Spawn Troop"
+script = ExtResource("5_spawn")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Instructions" type="Label" parent="UI"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 400.0
+offset_bottom = 120.0
+text = "TAB - Switch between Player/Puppeteer view
+WASD - Move player
+Drag 'Spawn Troop' button to spawn enemies
+Right-click - Set enemy target"
