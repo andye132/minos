@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/active_boons_ui.gd" id="1_boons"]
+
+[node name="ActiveBoonsUI" type="VBoxContainer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -280.0
+offset_top = 170.0
+offset_right = -20.0
+offset_bottom = 300.0
+grow_horizontal = 0
+theme_override_constants/separation = 4
+script = ExtResource("1_boons")
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 2
+text = "Active Boons"
+horizontal_alignment = 1
+
+[node name="Separator" type="HSeparator" parent="."]
+layout_mode = 2

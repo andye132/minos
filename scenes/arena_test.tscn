@@ -1,11 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://cum42ffr436gy"]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="PackedScene" uid="uid://bymew8rr8wd4o" path="res://scenes/mazetiles.tscn" id="1_maze"]
 [ext_resource type="PackedScene" uid="uid://yarntrail123" path="res://scenes/yarn_trail.tscn" id="2_yarn"]
 [ext_resource type="PackedScene" uid="uid://player123" path="res://scenes/player.tscn" id="3_player"]
 [ext_resource type="Script" uid="uid://bvv46ht6i2jij" path="res://scenes/puppeter.gd" id="4_puppeter"]
 [ext_resource type="Script" uid="uid://b2jj0defo5fb" path="res://scenes/spawn_enemy.gd" id="5_spawn"]
-[ext_resource type="Script" uid="uid://biy2nj0sgkp8f" path="res://scripts/arena_controller.gd" id="6_arena"]
+[ext_resource type="Script" path="res://scripts/arena_controller.gd" id="6_arena"]
 
 [node name="ArenaTest" type="Node2D"]
 script = ExtResource("6_arena")
@@ -13,6 +13,7 @@ script = ExtResource("6_arena")
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="."]
 
 [node name="Mazetiles" parent="NavigationRegion2D" instance=ExtResource("1_maze")]
+scale = Vector2(0.8, 0.8)
 
 [node name="YarnTrail" parent="." instance=ExtResource("2_yarn")]
 

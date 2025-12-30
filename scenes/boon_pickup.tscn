@@ -1,0 +1,38 @@
+[gd_scene load_steps=4 format=3 uid="uid://ca633dyqbbosu"]
+
+[ext_resource type="Script" uid="uid://dfgx2jevdda6k" path="res://scripts/boon_pickup.gd" id="1_boon"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_boon"]
+radius = 24.0
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_light"]
+width = 128
+height = 128
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[node name="BoonPickup" type="Area2D"]
+collision_layer = 8
+collision_mask = 0
+script = ExtResource("1_boon")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_boon")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+
+[node name="Light" type="PointLight2D" parent="."]
+energy = 0.4
+texture = SubResource("GradientTexture2D_light")
+texture_scale = 2.0
+
+[node name="Label" type="Label" parent="."]
+offset_left = -50.0
+offset_top = -35.0
+offset_right = 50.0
+offset_bottom = -20.0
+horizontal_alignment = 1
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]
