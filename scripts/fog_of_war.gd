@@ -63,8 +63,11 @@ func _update_revealed_cells() -> void:
 	# Reveal in flashlight cone
 	_reveal_cone(player_pos, look_dir, flashlight_range, flashlight_angle)
 
-	# Reveal around player
-	_reveal_circle(player_pos, ambient_radius)
+	# Reveal around player (use lantern radius if player has one equipped)
+	var effective_ambient = ambient_radius
+	if player.lantern_active:
+		effective_ambient = max(ambient_radius, player.lantern_radius)
+	_reveal_circle(player_pos, effective_ambient)
 
 	# Reveal along yarn
 	if yarn_trail:
@@ -187,8 +190,11 @@ func _is_in_visible_area(pos: Vector2, player_pos: Vector2, look_dir: Vector2) -
 	var to_pos = pos - player_pos
 	var dist = to_pos.length()
 
-	# Near player (ambient)
-	if dist < ambient_radius * 1.5:
+	# Near player (ambient or lantern)
+	var effective_ambient = ambient_radius
+	if player and player.lantern_active:
+		effective_ambient = max(ambient_radius, player.lantern_radius)
+	if dist < effective_ambient * 1.5:
 		return true
 
 	# In flashlight cone

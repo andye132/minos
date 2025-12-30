@@ -14,6 +14,20 @@ class_name Player
 # Health
 @export var max_hp: int = 100
 var current_hp: int = 100
+var base_max_hp: int = 100  # Store original for boon calculations
+
+# Boons
+var active_boons: Array[Boon] = []
+var speed_multiplier: float = 1.0
+var damage_multiplier: float = 1.0
+var dash_cooldown_multiplier: float = 1.0
+
+# Lantern (inventory item based)
+var lantern_active: bool = false
+var lantern_radius: float = 150.0
+var lantern_light: PointLight2D = null
+
+signal boon_acquired(boon: Boon)
 
 # State
 var is_dashing: bool = false
@@ -74,6 +88,7 @@ func _ready() -> void:
 	yarn_in_inventory = starting_yarn
 
 	# Initialize HP
+	base_max_hp = max_hp
 	current_hp = max_hp
 
 	# Setup sword swing component
@@ -119,7 +134,8 @@ func _process_movement(delta: float) -> void:
 		look_direction = input_dir
 
 	if input_dir != Vector2.ZERO:
-		velocity = velocity.move_toward(input_dir * move_speed, acceleration * delta)
+		var effective_speed = move_speed * speed_multiplier
+		velocity = velocity.move_toward(input_dir * effective_speed, acceleration * delta)
 		_update_walk_animation(input_dir)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
@@ -156,16 +172,38 @@ func _update_walk_animation(direction: Vector2) -> void:
 func _handle_input() -> void:
 	if Input.is_action_just_pressed("slot_1"):
 		inventory.select_slot(0)
+		_update_lantern_state()
 	elif Input.is_action_just_pressed("slot_2"):
 		inventory.select_slot(1)
+		_update_lantern_state()
 	elif Input.is_action_just_pressed("slot_3"):
 		inventory.select_slot(2)
+		_update_lantern_state()
 
 	if Input.is_action_just_pressed("interact"):
 		_try_pickup()
+		_update_lantern_state()
 
 	# Sword swing with mouse
 	_handle_combat_input()
+
+
+func _update_lantern_state() -> void:
+	var selected_item = inventory.get_selected_item()
+	var should_be_active = selected_item != null and selected_item.item_type == Item.ItemType.LANTERN
+
+	if should_be_active and not lantern_active:
+		# Activate lantern
+		lantern_active = true
+		lantern_radius = selected_item.lantern_radius
+		_setup_lantern_light()
+		print("Lantern activated! Radius: ", lantern_radius)
+	elif not should_be_active and lantern_active:
+		# Deactivate lantern
+		lantern_active = false
+		if lantern_light:
+			lantern_light.enabled = false
+		print("Lantern deactivated")
 
 
 func _try_pickup() -> void:
@@ -217,7 +255,8 @@ func _process_dash() -> void:
 func _on_dash_finished() -> void:
 	is_dashing = false
 	modulate = Color(1.0, 1.0, 1.0, 1.0)
-	dash_cooldown_timer.start(dash_cooldown)
+	var effective_cooldown = dash_cooldown * dash_cooldown_multiplier
+	dash_cooldown_timer.start(effective_cooldown)
 
 
 func _on_dash_cooldown_finished() -> void:
@@ -242,6 +281,10 @@ func _on_pickup_area_entered(area: Area2D) -> void:
 	if area is WorldItem:
 		nearby_items.append(area)
 		area._on_body_entered(self)
+	elif area is BoonPickup:
+		# Auto-pickup boons immediately
+		var boon = area.pickup(self)
+		# apply_boon is called via the signal in BoonManager
 
 
 func _on_pickup_area_exited(area: Area2D) -> void:
@@ -289,10 +332,11 @@ func _handle_combat_input() -> void:
 
 
 func _on_sword_hit(target: Node2D, damage_amount: int) -> void:
-	# Called when sword hits something
+	# Called when sword hits something - apply damage multiplier from boons
+	var effective_damage = int(damage_amount * damage_multiplier)
 	if target.has_method("take_damage"):
-		target.take_damage(damage_amount)
-	print("Hit ", target.name, " for ", damage_amount, " damage!")
+		target.take_damage(effective_damage)
+	print("Hit ", target.name, " for ", effective_damage, " damage!")
 
 
 func take_damage(amount: int) -> void:
@@ -327,3 +371,82 @@ func get_hp() -> int:
 
 func get_max_hp() -> int:
 	return max_hp
+
+
+# ===== BOONS =====
+
+func apply_boon(boon: Boon) -> void:
+	active_boons.append(boon)
+
+	match boon.boon_type:
+		Boon.BoonType.SPEED_BOOST:
+			speed_multiplier *= boon.value
+			print("Boon: Speed boost! Multiplier: ", speed_multiplier)
+
+		Boon.BoonType.DAMAGE_BOOST:
+			damage_multiplier *= boon.value
+			print("Boon: Damage boost! Multiplier: ", damage_multiplier)
+
+		Boon.BoonType.HP_BOOST:
+			var hp_increase = int(boon.value)
+			max_hp += hp_increase
+			current_hp += hp_increase  # Also heal by the amount
+			hp_changed.emit(current_hp, max_hp)
+			print("Boon: HP boost! Max HP: ", max_hp)
+
+		Boon.BoonType.DASH_COOLDOWN:
+			dash_cooldown_multiplier *= boon.value
+			print("Boon: Dash cooldown reduced! Multiplier: ", dash_cooldown_multiplier)
+
+	boon_acquired.emit(boon)
+
+
+func _setup_lantern_light() -> void:
+	if lantern_light:
+		lantern_light.queue_free()
+
+	lantern_light = PointLight2D.new()
+	lantern_light.name = "LanternLight"
+	lantern_light.enabled = true
+	lantern_light.color = Color(1.0, 0.9, 0.7)
+	lantern_light.energy = 0.8
+
+	# Create gradient texture for the lantern
+	var gradient = Gradient.new()
+	gradient.set_offset(0, 0.0)
+	gradient.set_color(0, Color(1, 1, 1, 1))
+	gradient.set_offset(1, 1.0)
+	gradient.set_color(1, Color(0, 0, 0, 0))
+
+	var texture = GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.width = 256
+	texture.height = 256
+	texture.fill = GradientTexture2D.FILL_RADIAL
+	texture.fill_from = Vector2(0.5, 0.5)
+	texture.fill_to = Vector2(0.5, 0.0)
+
+	lantern_light.texture = texture
+	# Scale texture to match desired radius
+	lantern_light.texture_scale = lantern_radius / 64.0
+
+	add_child(lantern_light)
+
+
+func get_active_boons() -> Array[Boon]:
+	return active_boons
+
+
+func has_boon_of_type(type: Boon.BoonType) -> bool:
+	for boon in active_boons:
+		if boon.boon_type == type:
+			return true
+	return false
+
+
+func get_lantern_radius() -> float:
+	return lantern_radius if lantern_active else 0.0
+
+
+func is_lantern_active() -> bool:
+	return lantern_active

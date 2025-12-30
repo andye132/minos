@@ -1,16 +1,18 @@
 extends Resource
 class_name Item
 
-enum ItemType { YARN, SWORD, TORCH, KEY, NONE }
+enum ItemType { YARN, SWORD, TORCH, KEY, LANTERN, NONE }
 
 @export var item_type: ItemType = ItemType.NONE
 @export var item_name: String = "Unknown"
 @export var description: String = ""
 @export var icon_color: Color = Color.WHITE
+@export var icon_texture: Texture2D = null  # Optional texture for inventory UI
 @export var stackable: bool = false
 @export var quantity: int = 1
 @export var damage: int = 0
 @export var attack_range: float = 60.0  # Swing radius in pixels
+@export var lantern_radius: float = 150.0  # Light radius for lantern
 
 
 func _init(type: ItemType = ItemType.NONE, name: String = "Unknown", desc: String = "", color: Color = Color.WHITE) -> void:
@@ -48,4 +50,14 @@ static func create_torch() -> Item:
 	item.item_name = "Torch"
 	item.description = "Provides extra light"
 	item.icon_color = Color(1.0, 0.5, 0.1)
+	return item
+
+
+static func create_lantern(radius: float = 150.0) -> Item:
+	var item = Item.new()
+	item.item_type = ItemType.LANTERN
+	item.item_name = "Lantern"
+	item.description = "Hold to light the way"
+	item.icon_color = Color(1.0, 0.8, 0.4)
+	item.lantern_radius = radius
 	return item

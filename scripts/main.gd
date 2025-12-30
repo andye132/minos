@@ -1,14 +1,19 @@
 extends Node2D
 
 const FogOfWarScript = preload("res://scripts/fog_of_war.gd")
+const BoonManagerScript = preload("res://scripts/boon_manager.gd")
+const ActiveBoonsUIScene = preload("res://scenes/active_boons_ui.tscn")
 
 @onready var player: Player = $Player
 @onready var yarn_trail: YarnTrail = $YarnTrail
 @onready var minimap: Minimap = $CanvasLayer/Minimap
 @onready var inventory_ui: InventoryUI = $CanvasLayer/InventoryUI
 @onready var maze: MazeGen = $Mazetiles
+@onready var canvas_layer: CanvasLayer = $CanvasLayer
 
 var fog_of_war: Node2D
+var boon_manager: BoonManager
+var active_boons_ui: ActiveBoonsUI
 
 
 func _ready() -> void:
@@ -39,6 +44,9 @@ func _ready() -> void:
 	# Connect fog of war to minimap
 	minimap.set_fog_of_war(fog_of_war)
 
+	# Setup boon system
+	_setup_boon_system()
+
 	# Connect inventory UI
 	inventory_ui.connect_to_inventory(player.get_inventory())
 
@@ -51,3 +59,20 @@ func _ready() -> void:
 
 func _on_yarn_amount_changed(amount: float) -> void:
 	inventory_ui.update_yarn_display(amount)
+
+
+func _setup_boon_system() -> void:
+	# Create boon manager
+	boon_manager = BoonManagerScript.new()
+	boon_manager.name = "BoonManager"
+	add_child(boon_manager)
+
+	# Setup with maze and player spawn position
+	boon_manager.setup(maze, player.global_position)
+
+	# Create boons UI
+	active_boons_ui = ActiveBoonsUIScene.instantiate()
+	canvas_layer.add_child(active_boons_ui)
+	active_boons_ui.setup(player)
+
+	print("Boon system initialized - ", boon_manager.get_remaining_boon_count(), " boons spawned")

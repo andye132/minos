@@ -1,6 +1,8 @@
 extends Node2D
 
 const FogOfWarScript = preload("res://scripts/fog_of_war.gd")
+const BoonManagerScript = preload("res://scripts/boon_manager.gd")
+const ActiveBoonsUIScene = preload("res://scenes/active_boons_ui.tscn")
 
 @onready var player: Player = $Player
 @onready var yarn_trail: YarnTrail = $YarnTrail
@@ -11,6 +13,8 @@ const FogOfWarScript = preload("res://scripts/fog_of_war.gd")
 var player_camera: Camera2D
 var player_fog: Node2D
 var is_player_view: bool = true
+var boon_manager: BoonManager
+var active_boons_ui: ActiveBoonsUI
 
 # Tile size settings
 var base_tile_size: float = 160.0
@@ -26,6 +30,9 @@ func _ready() -> void:
 
 	# Setup player's fog of war
 	_setup_player_fog()
+
+	# Setup boon system
+	_setup_boon_system()
 
 	# Set initial view to player
 	_switch_to_player_view()
@@ -104,3 +111,27 @@ func _setup_player_fog() -> void:
 		player_fog.setup(maze_width, maze_height)
 
 	add_child(player_fog)
+
+
+func _setup_boon_system() -> void:
+	var maze_ref = nav_region.get_node_or_null("Mazetiles") as MazeGen
+	if not maze_ref:
+		push_warning("Arena: No maze found for boon spawning")
+		return
+
+	# Create boon manager
+	boon_manager = BoonManagerScript.new()
+	boon_manager.name = "BoonManager"
+	add_child(boon_manager)
+
+	# Setup with maze and player spawn position
+	boon_manager.setup(maze_ref, player.global_position)
+
+	# Create boons UI
+	var ui_layer = $UI
+	if ui_layer:
+		active_boons_ui = ActiveBoonsUIScene.instantiate()
+		ui_layer.add_child(active_boons_ui)
+		active_boons_ui.setup(player)
+
+	print("Boon system initialized")
