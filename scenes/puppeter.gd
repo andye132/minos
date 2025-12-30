@@ -41,19 +41,15 @@ func _ready():
 	# Show lobby UI
 	lobby_ui.visible = true
 	play_ui.visible = false
-
-	# Connect start button
-	start_button.pressed.connect(_on_start_button_pressed)
-
 	
-func start_game():
+func start_game(seed: int):
 	if nav_region:
 		nav_region.set_process(true)
 		nav_region.visible = true
 	if maze_ref:
 		maze_ref.set_process(true)
 		maze_ref.visible = true
-		maze_ref.start_game()
+		maze_ref.start_game(seed)
 
 	# Connect the button drag/drop signal
 	spawn_button.connect("spawn_requested", Callable(self, "_on_spawn_requested"))
@@ -143,4 +139,8 @@ func _on_start_button_pressed() -> void:
 	emit_signal("start_game_signal")
 	lobby_ui.visible = false
 	play_ui.visible = true
-	start_game()
+	
+	
+@rpc("any_peer", "call_local", "reliable")
+func rpc_start_game(seed: int):
+	start_game(seed)

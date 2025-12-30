@@ -44,4 +44,4 @@ func _on_start_game():
 	# Call RPC manually on each player instance
 	for p in players:
 		if is_instance_valid(p):
-			p.rpc("rpc_start_game")
+			p.rpc("rpc_start_game", seed)

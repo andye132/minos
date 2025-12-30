@@ -1,9 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://bolpupus30lbu"]
+[gd_scene load_steps=7 format=3 uid="uid://ctvay6matv7m0"]
 
 [ext_resource type="PackedScene" uid="uid://1ciik3ucgvf5" path="res://scenes/start_screenv_2.tscn" id="1_1ps8a"]
-[ext_resource type="Script" uid="uid://dgwdseyjagsau" path="res://real_main.gd" id="1_qj2yo"]
+[ext_resource type="Script" path="res://real_main.gd" id="1_qj2yo"]
 [ext_resource type="Script" uid="uid://bqtx7k2echv1m" path="res://multiplayer_spawner.gd" id="2_qj2yo"]
-[ext_resource type="PackedScene" uid="uid://player123" path="res://scenes/player.tscn" id="3_5fq4g"]
+[ext_resource type="PackedScene" uid="uid://b113y4diqcgse" path="res://scenes/player.tscn" id="3_5fq4g"]
 [ext_resource type="PackedScene" uid="uid://ddg585lp8ljhu" path="res://scenes/puppeter.tscn" id="4_b551m"]
 [ext_resource type="PackedScene" uid="uid://bymew8rr8wd4o" path="res://scenes/mazetiles.tscn" id="6_x2ry1"]
 
@@ -11,7 +11,7 @@
 script = ExtResource("1_qj2yo")
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://player123")
+_spawnable_scenes = PackedStringArray("uid://b113y4diqcgse")
 spawn_path = NodePath("..")
 script = ExtResource("2_qj2yo")
 network_player = ExtResource("3_5fq4g")

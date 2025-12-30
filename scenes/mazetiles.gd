@@ -29,12 +29,16 @@ var adj4 = [
 var all_wall_locs: Array[Vector2i] = []
 var all_floor_locs: Array[Vector2i] = []
 var usb_room_walls: Array[int] = []
+
+var rng = RandomNumberGenerator.new()
 	
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass
 
-func start_game():
+func start_game(seed: int):
+	rng.seed = seed
+	
 	place_border(-1, -1, x_dim, y_dim)
 	generate_usb_room_coords()
 	print(usb_room_walls)
@@ -81,8 +85,8 @@ func place_floor_border(x_min, y_min, x_max, y_max):
 		
 
 func generate_usb_room_coords():
-	var usbcenter_x = int(clamp(randfn(x_dim/2, x_dim/usb_density), 0 + usbroom_x/2, x_dim - usbroom_x/2 - 1))
-	var usbcenter_y = int(clamp(randfn(y_dim/2, y_dim/usb_density), 0 + usbroom_y/2, y_dim - usbroom_y/2 - 1))
+	var usbcenter_x = int(clamp(rng.randfn(x_dim/2, x_dim/usb_density), 0 + usbroom_x/2, x_dim - usbroom_x/2 - 1))
+	var usbcenter_y = int(clamp(rng.randfn(y_dim/2, y_dim/usb_density), 0 + usbroom_y/2, y_dim - usbroom_y/2 - 1))
 	print(usbcenter_x)
 	print(usbcenter_y)
 	usb_room_walls.append(int(usbcenter_x - usbroom_x/2) | 1)
@@ -148,7 +152,7 @@ func dfs(start: Vector2i):
 			continue
 		
 		var found_new_path = false
-		adj4.shuffle()
+		shuffle_seeded(adj4, rng)
 		
 		for pos in adj4:
 			var new_pos = current + pos
@@ -210,3 +214,11 @@ func _create_light_occluders() -> void:
 
 		wall_occluder.occluder = wall_polygon
 		add_child(wall_occluder)
+		
+
+func shuffle_seeded(array: Array, rng: RandomNumberGenerator) -> void:
+	for i in range(array.size() - 1, 0, -1):
+		var j = rng.randi_range(0, i)
+		var tmp = array[i]
+		array[i] = array[j]
+		array[j] = tmp

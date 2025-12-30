@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Maze Chase"
-run/main_scene="res://scenes/arena_test.tscn"
+run/main_scene="uid://ctvay6matv7m0"
 config/features=PackedStringArray("4.5", "Forward Plus")
 
 [autoload]

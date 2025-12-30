@@ -123,14 +123,14 @@ func _ready() -> void:
 	pickup_area.area_entered.connect(_on_pickup_area_entered)
 	pickup_area.area_exited.connect(_on_pickup_area_exited)
 	
-func start_game():
+func start_game(seed: int):
 	if nav_region:
 		nav_region.set_process(true)
 		nav_region.visible = true
 	if maze_ref:
 		maze_ref.set_process(true)
 		maze_ref.visible = true
-		maze_ref.start_game()
+		maze_ref.start_game(seed)
 
 
 func _setup_lights() -> void:
@@ -482,5 +482,5 @@ func is_lantern_active() -> bool:
 	return lantern_active
 	
 @rpc("any_peer", "call_local", "reliable")
-func rpc_start_game():
-	start_game()
+func rpc_start_game(seed: int):
+	start_game(seed)
